@@ -1,8 +1,7 @@
-// Fix: Corrected 'use client' syntax
 'use client';
 
 import * as React from "react";
-import { Moon, Sun, BookOpen } from "lucide-react"; // Added BookOpen for Sepia
+import { Moon, Sun, Laptop } from "lucide-react"; // Removed BookOpen, Added Laptop for System
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -24,9 +23,7 @@ export function ModeToggle() {
            {/* Ensure only one icon shows at a time based on the current theme */}
            {theme === 'dark' ? (
              <Moon className="h-[1.2rem] w-[1.2rem] transition-all" />
-           ) : theme === 'sepia' ? (
-              <BookOpen className="h-[1.2rem] w-[1.2rem] transition-all" />
-           ) : (
+           ) : ( // Default to Sun icon for light and system themes
              <Sun className="h-[1.2rem] w-[1.2rem] transition-all" />
            )}
           <span className="sr-only">Toggle theme</span>
@@ -41,13 +38,9 @@ export function ModeToggle() {
            <Moon className="mr-2 h-4 w-4" /> {/* Add icon */}
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("sepia")}>
-           <BookOpen className="mr-2 h-4 w-4" /> {/* Add icon */}
-          Sepia
-        </DropdownMenuItem>
+         {/* Removed Sepia option */}
          <DropdownMenuItem onClick={() => setTheme("system")}>
-           {/* Consider adding a 'System' icon, e.g., Laptop */}
-           {/* <Laptop className="mr-2 h-4 w-4" /> */}
+           <Laptop className="mr-2 h-4 w-4" /> {/* Add icon for System */}
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

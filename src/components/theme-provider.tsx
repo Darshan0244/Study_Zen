@@ -4,8 +4,8 @@ import * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import type { ThemeProviderProps } from "next-themes/dist/types"
 
-// Define the themes we explicitly support
-const supportedThemes = ["light", "dark", "sepia", "system"];
+// Define the themes we explicitly support (removed 'sepia')
+const supportedThemes = ["light", "dark", "system"];
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (

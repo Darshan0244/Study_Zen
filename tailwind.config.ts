@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-    darkMode: ["class", ".dark", ".sepia"], // Add .sepia selector
+    darkMode: ["class", ".dark"], // Remove .sepia selector
     content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -173,30 +173,7 @@ export default {
               }
             },
           },
-           // Add sepia variant for prose
-           sepia: {
-             css: {
-               '--tw-prose-body': 'hsl(var(--foreground))',
-               '--tw-prose-headings': 'hsl(var(--foreground))',
-               '--tw-prose-lead': 'hsl(var(--muted-foreground))',
-               '--tw-prose-links': 'hsl(var(--primary))',
-               '--tw-prose-bold': 'hsl(var(--foreground))',
-               '--tw-prose-counters': 'hsl(var(--muted-foreground))',
-               '--tw-prose-bullets': 'hsl(var(--muted-foreground))',
-               '--tw-prose-hr': 'hsl(var(--border))',
-               '--tw-prose-quotes': 'hsl(var(--foreground))',
-               '--tw-prose-quote-borders': 'hsl(var(--border))',
-               '--tw-prose-captions': 'hsl(var(--muted-foreground))',
-               '--tw-prose-code': 'hsl(var(--foreground))',
-               '--tw-prose-pre-code': 'hsl(var(--foreground))',
-               '--tw-prose-pre-bg': 'hsl(var(--muted))',
-               '--tw-prose-th-borders': 'hsl(var(--border))',
-               '--tw-prose-td-borders': 'hsl(var(--border))',
-               // Invert colors are not typically used with sepia, but define them if needed
-               '--tw-prose-invert-body': 'hsl(var(--foreground))',
-               // ... Add other invert variables if sepia needs dark mode variants
-             },
-           },
+           // Removed sepia variant for prose
         }),
   	}
   },
