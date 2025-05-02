@@ -1,4 +1,3 @@
-
 'use client'; // Add 'use client' because we need state and effects
 
 import type { Metadata } from 'next';
@@ -12,6 +11,9 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Footer } from "@/components/footer";
 import { Preloader } from '@/components/preloader'; // Import the Preloader component
 import { NotebookText } from 'lucide-react'; // Import the new icon
+// NOTE: BadgeProvider context usage might not be necessary if useBadges hook manages state globally via localStorage correctly.
+// If global state management beyond localStorage is needed, a Context Provider pattern would be implemented here.
+// For now, relying on the hook's localStorage logic.
 
 // Configure Inter font
 const inter = Inter({
@@ -77,6 +79,8 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
           >
+            {/* Wrapping with a provider might be needed if state needs to be shared more directly */}
+            {/* <BadgeProvider> */}
             <div className="relative flex flex-col flex-1">
                <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="container flex h-14 items-center justify-between px-4 md:px-6">
@@ -96,10 +100,10 @@ export default function RootLayout({
             </div>
             <Footer />
             <Toaster />
+            {/* </BadgeProvider> */}
            </ThemeProvider>
         )}
       </body>
     </html>
   );
 }
-

@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from '@/components/ui/separator';
 import ReactMarkdown from 'react-markdown'; // Import react-markdown
 import { Skeleton } from '@/components/ui/skeleton'; // Import Skeleton for loading state
+import { useBadges } from '@/hooks/useBadges'; // Import the badge hook
 
 // Define the Task interface again or import if defined elsewhere globally
 type Priority = 'High' | 'Medium' | 'Low';
@@ -31,6 +32,7 @@ export function AiPlanner() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false); // Track client mount
   const [tasksLoading, setTasksLoading] = useState(true); // State for initial task loading
+  const { incrementAiPlanGeneratedCount } = useBadges(); // Use the badge hook
 
    // Load tasks from local storage on mount (client-side only)
   useEffect(() => {
@@ -93,6 +95,7 @@ export function AiPlanner() {
          description: "AI has created a personalized study plan for you below.",
          duration: 5000, // Show toast longer
        });
+       incrementAiPlanGeneratedCount(); // Increment badge counter on success
     } catch (error) {
       console.error('Error generating study plan:', error);
       let errorMessage = "Could not generate study plan. Please try again later.";

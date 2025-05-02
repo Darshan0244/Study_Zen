@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Confetti } from '@/components/confetti'; // Import the Confetti component
+import { useBadges } from '@/hooks/useBadges'; // Import the badge hook
 
 type Priority = 'High' | 'Medium' | 'Low';
 
@@ -51,6 +52,7 @@ export function TaskList() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false); // Track client mount
   const [showConfetti, setShowConfetti] = useState(false); // State for confetti
+  const { incrementTasksCompleted } = useBadges(); // Use the badge hook
 
   // Load tasks from local storage on mount
   useEffect(() => {
@@ -117,7 +119,7 @@ export function TaskList() {
     let taskCompleted = false;
     const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
-        if (!task.completed) { // Only trigger confetti if marking as complete
+        if (!task.completed) { // Only trigger confetti and badge if marking as complete
              taskCompleted = true;
            }
         return { ...task, completed: !task.completed };
@@ -134,9 +136,10 @@ export function TaskList() {
          description: `"${updatedTask.taskName}" status updated.`,
        });
 
-       // Trigger confetti if the task was just marked as complete
+       // Trigger confetti and increment badge counter if the task was just marked as complete
        if (taskCompleted) {
          setShowConfetti(true);
+         incrementTasksCompleted(); // Increment badge counter
          // Hide confetti after a short duration
          setTimeout(() => setShowConfetti(false), 4000); // Show confetti for 4 seconds
        }
@@ -204,7 +207,9 @@ export function TaskList() {
     // Increase bottom margin for spacing
     <Card className="w-full shadow-lg relative overflow-hidden mb-8 md:mb-10">
       {/* Conditionally render confetti */}
-      {showConfetti && <Confetti />}
+      {showConfetti && <Confetti particleCount={200} // Increase particle count
+          colors={['#5F8B4C', '#FFDDAB', '#FFA725', '#FFFFFF', '#f87171', '#3b82f6']} // Add more colors
+       />}
 
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-primary">My Tasks</CardTitle>
@@ -294,9 +299,9 @@ export function TaskList() {
                 className={cn(
                     `flex items-center p-3 justify-between ${getPriorityClasses(task.priority)} flex-wrap sm:flex-nowrap transition-all duration-300 ease-in-out group`, // Added group for hover effects on children
                     task.completed
-                      ? 'opacity-60 bg-muted/30'
+                      ? 'opacity-60 bg-muted/30 filter grayscale-[50%]' // Added grayscale filter
                       // Enhanced hover for non-completed: brighter shadow, subtle scale
-                      : 'bg-card hover:shadow-md hover:shadow-primary/20 hover:scale-[1.02]'
+                      : 'bg-card hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.03]' // Enhanced hover
                 )}
               >
                 <div className="flex items-center gap-3 flex-grow mr-2 overflow-hidden w-full sm:w-auto mb-2 sm:mb-0"> {/* Responsive width and margin */}
@@ -305,12 +310,12 @@ export function TaskList() {
                     checked={task.completed}
                     onCheckedChange={() => toggleComplete(task.id)}
                     aria-labelledby={`task-label-${task.id}`}
-                     className="flex-shrink-0 transition-transform duration-200 hover:scale-110" // Hover effect for checkbox
+                     className="flex-shrink-0 transition-transform duration-200 hover:scale-110 border-primary data-[state=checked]:bg-primary" // Ensure consistent primary color
                   />
                   <div className="flex flex-col overflow-hidden min-w-0"> {/* Ensure text container doesn't overflow */}
                     <span id={`task-label-${task.id}`} className={cn(
                         "font-medium break-words transition-colors duration-200",
-                        task.completed ? 'line-through text-muted-foreground' : 'text-card-foreground group-hover:text-primary' // Change color on hover
+                        task.completed ? 'line-through text-muted-foreground' : 'text-card-foreground group-hover:text-primary group-hover:font-semibold' // Change color and weight on hover
                      )}>
                         {task.taskName}
                      </span>
@@ -320,11 +325,11 @@ export function TaskList() {
                     </span>
                   </div>
                 </div>
-                <div className="flex gap-1 shrink-0 justify-end w-full sm:w-auto transition-opacity duration-200 sm:opacity-0 group-hover:opacity-100"> {/* Actions appear on hover */}
+                <div className="flex gap-1 shrink-0 justify-end w-full sm:w-auto transition-opacity duration-300 sm:opacity-0 group-hover:opacity-100 focus-within:opacity-100"> {/* Actions appear on hover/focus */}
                    <Dialog open={editingTask?.id === task.id} onOpenChange={(isOpen) => !isOpen && cancelEdit()}>
                       <DialogTrigger asChild>
                         {/* Improved button styling */}
-                        <Button variant="ghost" size="icon" onClick={() => startEditing(task)} aria-label={`Edit task ${task.taskName}`} className="hover:bg-accent rounded-full text-muted-foreground hover:text-accent-foreground transform hover:scale-110 transition-transform duration-150">
+                        <Button variant="ghost" size="icon" onClick={() => startEditing(task)} aria-label={`Edit task ${task.taskName}`} className="hover:bg-accent rounded-full text-muted-foreground hover:text-accent-foreground transform hover:scale-110 transition-all duration-150 ease-in-out">
                           <Edit className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
@@ -401,7 +406,7 @@ export function TaskList() {
                       )}
                    </Dialog>
                    {/* Improved button styling */}
-                   <Button variant="ghost" size="icon" onClick={() => deleteTask(task.id)} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 rounded-full transform hover:scale-110 transition-transform duration-150" aria-label={`Delete task ${task.taskName}`}>
+                   <Button variant="ghost" size="icon" onClick={() => deleteTask(task.id)} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 rounded-full transform hover:scale-110 transition-all duration-150 ease-in-out" aria-label={`Delete task ${task.taskName}`}>
                      <Trash2 className="h-4 w-4" />
                    </Button>
                 </div>

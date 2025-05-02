@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
+import { useBadges } from '@/hooks/useBadges'; // Import the badge hook
 
 type TimerMode = 'work' | 'shortBreak' | 'longBreak';
 
@@ -24,13 +25,13 @@ export function PomodoroTimer() {
   const [mode, setMode] = useState<TimerMode>('work');
   const [timeLeft, setTimeLeft] = useState<number | null>(null); // Start as null
   const [isActive, setIsActive] = useState(false);
-  const [sessionsCompleted, setSessionsCompleted] = useState(0);
+  const [sessionsCompleted, setSessionsCompleted] = useState(0); // Local count for Pomodoro cycles
 
   const { toast } = useToast();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-   const [isClient, setIsClient] = useState(false); // State to track client-side mount
-
+  const [isClient, setIsClient] = useState(false); // State to track client-side mount
+  const { incrementPomodoroSessions, badgeProgress } = useBadges(); // Use badge hook
 
    // Load settings and initialize timer on client-side mount
    useEffect(() => {
@@ -39,18 +40,32 @@ export function PomodoroTimer() {
      const savedWork = localStorage.getItem('pomodoroWorkMinutes');
      const savedShort = localStorage.getItem('pomodoroShortBreakMinutes');
      const savedLong = localStorage.getItem('pomodoroLongBreakMinutes');
-     const savedSessions = localStorage.getItem('pomodoroSessionsCompleted');
+     // Load overall completed sessions from badgeProgress hook (single source of truth)
+     setSessionsCompleted(badgeProgress.pomodoroSessionsCompleted);
+
 
      const currentWorkMin = savedWork ? parseInt(savedWork, 10) : WORK_MINUTES_DEFAULT;
      setWorkMinutes(currentWorkMin);
      setShortBreakMinutes(savedShort ? parseInt(savedShort, 10) : SHORT_BREAK_MINUTES_DEFAULT);
      setLongBreakMinutes(savedLong ? parseInt(savedLong, 10) : LONG_BREAK_MINUTES_DEFAULT);
-     setSessionsCompleted(savedSessions ? parseInt(savedSessions, 10) : 0);
+     // setSessionsCompleted(savedSessions ? parseInt(savedSessions, 10) : 0); // No longer load this locally
 
      // Set initial timeLeft only after loading settings
-     setTimeLeft(currentWorkMin * 60);
+      // Make sure timeLeft reflects the current mode if not active
+     if (!isActive) {
+        if (mode === 'work') setTimeLeft(currentWorkMin * 60);
+        else if (mode === 'shortBreak') setTimeLeft(shortBreakMinutes * 60);
+        else if (mode === 'longBreak') setTimeLeft(longBreakMinutes * 60);
+        else setTimeLeft(currentWorkMin * 60); // Default to work
+     } else if (timeLeft === null) {
+         // If active but timeLeft is null (e.g., first load), initialize based on mode
+         if (mode === 'work') setTimeLeft(currentWorkMin * 60);
+         else if (mode === 'shortBreak') setTimeLeft(shortBreakMinutes * 60);
+         else if (mode === 'longBreak') setTimeLeft(longBreakMinutes * 60);
+     }
+     // Else, keep the existing timeLeft if the timer was already running
 
-   }, []); // Empty dependency array
+   }, [badgeProgress.pomodoroSessionsCompleted, isClient]); // Depend on badgeProgress for initial session count
 
 
    // Preload audio and request permission only when timer actually starts or switches
@@ -72,12 +87,12 @@ export function PomodoroTimer() {
    }, [isClient]);
 
 
-   // Save settings and session count to local storage
+   // Save settings to local storage
    const saveSettings = () => {
        localStorage.setItem('pomodoroWorkMinutes', workMinutes.toString());
        localStorage.setItem('pomodoroShortBreakMinutes', shortBreakMinutes.toString());
        localStorage.setItem('pomodoroLongBreakMinutes', longBreakMinutes.toString());
-       localStorage.setItem('pomodoroSessionsCompleted', sessionsCompleted.toString());
+       // Removed saving session count here - managed by badge hook
 
        // Update timer if not active and matches the mode being saved
        if (!isActive) {
@@ -88,12 +103,12 @@ export function PomodoroTimer() {
        toast({ title: "Settings Saved", description: "Pomodoro timer settings updated." });
    };
 
-    // Update session count in local storage whenever it changes
-    useEffect(() => {
-        if (isClient) { // Only run on client
-            localStorage.setItem('pomodoroSessionsCompleted', sessionsCompleted.toString());
-        }
-    }, [sessionsCompleted, isClient]);
+    // // Update session count in local storage whenever it changes (Removed - Handled by badge hook)
+    // useEffect(() => {
+    //     if (isClient) { // Only run on client
+    //         localStorage.setItem('pomodoroSessionsCompleted', sessionsCompleted.toString());
+    //     }
+    // }, [sessionsCompleted, isClient]);
 
 
   const switchMode = useCallback(() => {
@@ -102,14 +117,18 @@ export function PomodoroTimer() {
     let nextTime: number;
     let notificationTitle = "";
     let notificationDescription = "";
-    let newSessionsCompleted = sessionsCompleted;
+    let workSessionJustCompleted = false;
 
     ensureAudioAndPermissions(); // Ensure audio/perms are ready
 
 
     if (mode === 'work') {
-        newSessionsCompleted = sessionsCompleted + 1;
-         setSessionsCompleted(newSessionsCompleted);
+        workSessionJustCompleted = true;
+        const newSessionsCompleted = badgeProgress.pomodoroSessionsCompleted + 1; // Get potential new count
+         // Increment badge count *after* determining the next mode
+        incrementPomodoroSessions(); // This updates the central progress
+
+
       if (newSessionsCompleted > 0 && newSessionsCompleted % SESSIONS_BEFORE_LONG_BREAK === 0) {
         nextMode = 'longBreak';
         nextTime = longBreakMinutes * 60;
@@ -147,7 +166,7 @@ export function PomodoroTimer() {
        });
      }
 
-  }, [mode, sessionsCompleted, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient, ensureAudioAndPermissions]); // Added isClient dependency
+  }, [mode, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient, ensureAudioAndPermissions, incrementPomodoroSessions, badgeProgress.pomodoroSessionsCompleted]); // Added badge dependencies
 
 
   useEffect(() => {
@@ -250,9 +269,9 @@ export function PomodoroTimer() {
         <CardDescription>Stay focused and take effective breaks.</CardDescription>
          <div className="flex flex-wrap justify-center gap-2 mt-4"> {/* Added flex-wrap */}
             {/* Enhanced Button Styling */}
-            <Button variant={mode === 'work' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('work'); setTimeLeft(workMinutes * 60); setIsActive(false); } }} className="transition-all duration-200 ease-in-out hover:scale-105">Work</Button>
-            <Button variant={mode === 'shortBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('shortBreak'); setTimeLeft(shortBreakMinutes * 60); setIsActive(false); } }} className="transition-all duration-200 ease-in-out hover:scale-105">Short Break</Button>
-            <Button variant={mode === 'longBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('longBreak'); setTimeLeft(longBreakMinutes * 60); setIsActive(false); } }} className="transition-all duration-200 ease-in-out hover:scale-105">Long Break</Button>
+            <Button variant={mode === 'work' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient && !isActive) { setMode('work'); setTimeLeft(workMinutes * 60); } }} className="transition-all duration-200 ease-in-out hover:scale-105" disabled={isActive}>Work</Button>
+            <Button variant={mode === 'shortBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient && !isActive) { setMode('shortBreak'); setTimeLeft(shortBreakMinutes * 60); } }} className="transition-all duration-200 ease-in-out hover:scale-105" disabled={isActive}>Short Break</Button>
+            <Button variant={mode === 'longBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient && !isActive) { setMode('longBreak'); setTimeLeft(longBreakMinutes * 60); } }} className="transition-all duration-200 ease-in-out hover:scale-105" disabled={isActive}>Long Break</Button>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-8 pt-4"> {/* Increased gap and padding */}
@@ -335,7 +354,7 @@ export function PomodoroTimer() {
         </div>
       </CardContent>
       <CardFooter className="text-center text-sm text-muted-foreground mt-4"> {/* Added margin-top */}
-        Sessions Completed Today: {sessionsCompleted}
+        Total Sessions Completed: {badgeProgress.pomodoroSessionsCompleted}
       </CardFooter>
     </Card>
   );
