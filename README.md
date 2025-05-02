@@ -1,5 +1,108 @@
-# Firebase Studio
+# StudyZen - Productivity Planner
 
-This is a NextJS starter in Firebase Studio.
+StudyZen is a Next.js application designed to help students plan their tasks, manage their study sessions using a Pomodoro timer, and generate personalized study plans with the help of AI.
 
-To get started, take a look at src/app/page.tsx.
+![StudyZen Screenshot](https://picsum.photos/1200/600?grayscale) <!-- Replace with an actual screenshot URL if available -->
+<!-- data-ai-hint: productivity planner app screenshot -->
+
+## Features
+
+*   **Task Management:** Add, edit, delete, and mark tasks as complete. Tasks can be assigned a subject, priority (High, Medium, Low), and deadline.
+*   **Pomodoro Timer:** A customizable Pomodoro timer with work, short break, and long break modes to enhance focus and manage study sessions effectively. Includes audio and browser notifications.
+*   **AI Study Planner:** Leverages Google's Gemini AI (via Genkit) to analyze active tasks and generate a personalized day-by-day study schedule and actionable suggestions.
+*   **Persistence:** Tasks and Pomodoro settings are saved in the browser's local storage.
+*   **Responsive Design:** Fully responsive UI that works seamlessly on desktop and mobile devices.
+*   **Theme Toggle:** Light and Dark mode support.
+*   **Preloader:** Smooth loading experience with an initial preloader animation.
+
+## Tech Stack
+
+*   **Framework:** [Next.js](https://nextjs.org/) (App Router)
+*   **UI Components:** [ShadCN UI](https://ui.shadcn.com/)
+*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+*   **AI Integration:** [Google AI (Gemini) via Genkit](https://firebase.google.com/docs/genkit)
+*   **State Management:** React Hooks (`useState`, `useEffect`) & Local Storage
+*   **Icons:** [Lucide React](https://lucide.dev/)
+*   **Date Handling:** [date-fns](https://date-fns.org/)
+*   **Markdown Rendering:** [react-markdown](https://github.com/remarkjs/react-markdown)
+*   **Language:** TypeScript
+
+## Getting Started
+
+### Prerequisites
+
+*   Node.js (v18 or later recommended)
+*   npm, yarn, or pnpm
+*   A Google AI API Key (for the AI Planner feature)
+
+### Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd studyzen
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    yarn install
+    # or
+    pnpm install
+    ```
+
+3.  **Set up environment variables:**
+    Create a `.env.local` file in the root of the project and add your Google AI API key:
+    ```.env.local
+    GOOGLE_GENAI_API_KEY=YOUR_API_KEY_HERE
+    ```
+    *Note: You can obtain an API key from [Google AI Studio](https://aistudio.google.com/app/apikey).*
+
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    ```
+    This command starts the Next.js development server (usually on `http://localhost:9002`).
+
+5.  **(Optional) Run the Genkit development flow server:**
+    If you want to interact with or test the Genkit flows directly (e.g., using the Genkit developer UI), run:
+    ```bash
+    npm run genkit:dev
+    # or use watch mode
+    npm run genkit:watch
+    ```
+    The Genkit UI will typically be available at `http://localhost:4000`. *Note: The Next.js app calls the AI flow directly as a server function, so running the Genkit server separately is usually only needed for debugging the flow itself.*
+
+### Building for Production
+
+```bash
+npm run build
+npm start
+```
+
+## Project Structure
+
+*   `src/app/`: Main application routes and layout (Next.js App Router).
+*   `src/components/`: Reusable UI components.
+    *   `src/components/ui/`: ShadCN UI components.
+*   `src/ai/`: Genkit AI integration files.
+    *   `src/ai/flows/`: Genkit flows (e.g., study plan generation).
+    *   `src/ai/ai-instance.ts`: Genkit configuration.
+*   `src/hooks/`: Custom React hooks.
+*   `src/lib/`: Utility functions.
+*   `public/`: Static assets (images, sounds, icons).
+*   `tailwind.config.ts`: Tailwind CSS configuration.
+*   `next.config.ts`: Next.js configuration.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
