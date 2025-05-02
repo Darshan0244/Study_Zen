@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Footer } from "@/components/footer";
 import { Preloader } from '@/components/preloader'; // Import the Preloader component
+import { NotebookText } from 'lucide-react'; // Import the new icon
 
 // Configure Inter font
 const inter = Inter({
@@ -71,7 +72,8 @@ export default function RootLayout({
                 <div className="container flex h-14 items-center justify-between px-4 md:px-6">
                   <div className="mr-4 flex items-center">
                     <a href="/" className="mr-6 flex items-center space-x-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M12 2 C6.48 2 2 6.48 2 12 s4.48 10 10 10 10-4.48 10-10 S17.52 2 12 2 Z M12 18 c-3.31 0-6-2.69-6-6 s2.69-6 6-6 6 2.69 6 6 -2.69 6-6 6 Z M12 6 v6 l4 2"/></svg>
+                      {/* Replace SVG with NotebookText icon */}
+                      <NotebookText className="h-6 w-6 text-primary"/>
                       <span className="font-bold sm:inline-block">
                         StudyZen
                       </span>
