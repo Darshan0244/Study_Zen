@@ -8,7 +8,7 @@ export function Footer() {
     <footer className="mt-auto py-6 px-4 md:px-8 border-t bg-background">
       <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
         <p className="text-sm text-muted-foreground mb-4 sm:mb-0">
-          &copy; {currentYear} StudyZen. All rights reserved. Built with Next.js & ShadCN UI.
+          &copy; {currentYear} StudyZen. All rights reserved.
         </p>
         <div className="flex items-center space-x-4">
           <a
