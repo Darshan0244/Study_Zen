@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -25,47 +26,51 @@ export function PomodoroTimer() {
   const [mode, setMode] = useState<TimerMode>('work');
   const [timeLeft, setTimeLeft] = useState<number | null>(null); // Start as null
   const [isActive, setIsActive] = useState(false);
-  const [sessionsCompleted, setSessionsCompleted] = useState(0); // Local count for Pomodoro cycles
+  const [sessionsCompletedDisplay, setSessionsCompletedDisplay] = useState<number>(0); // Local display state
 
   const { toast } = useToast();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isClient, setIsClient] = useState(false); // State to track client-side mount
-  const { incrementPomodoroSessions, badgeProgress } = useBadges(); // Use badge hook
+  // Get badgeProgress state, loading status, and increment function
+  const { incrementPomodoroSessions, badgeProgress, isLoading: badgesLoading } = useBadges();
 
-   // Load settings and initialize timer on client-side mount
+   // Effect 1: Load settings and initialize timer ONCE on client-side mount
    useEffect(() => {
     setIsClient(true); // Component has mounted on the client
 
      const savedWork = localStorage.getItem('pomodoroWorkMinutes');
      const savedShort = localStorage.getItem('pomodoroShortBreakMinutes');
      const savedLong = localStorage.getItem('pomodoroLongBreakMinutes');
-     // Load overall completed sessions from badgeProgress hook (single source of truth)
-     setSessionsCompleted(badgeProgress.pomodoroSessionsCompleted);
-
 
      const currentWorkMin = savedWork ? parseInt(savedWork, 10) : WORK_MINUTES_DEFAULT;
+     const currentShortMin = savedShort ? parseInt(savedShort, 10) : SHORT_BREAK_MINUTES_DEFAULT;
+     const currentLongMin = savedLong ? parseInt(savedLong, 10) : LONG_BREAK_MINUTES_DEFAULT;
+
      setWorkMinutes(currentWorkMin);
-     setShortBreakMinutes(savedShort ? parseInt(savedShort, 10) : SHORT_BREAK_MINUTES_DEFAULT);
-     setLongBreakMinutes(savedLong ? parseInt(savedLong, 10) : LONG_BREAK_MINUTES_DEFAULT);
-     // setSessionsCompleted(savedSessions ? parseInt(savedSessions, 10) : 0); // No longer load this locally
+     setShortBreakMinutes(currentShortMin);
+     setLongBreakMinutes(currentLongMin);
 
-     // Set initial timeLeft only after loading settings
-      // Make sure timeLeft reflects the current mode if not active
-     if (!isActive) {
-        if (mode === 'work') setTimeLeft(currentWorkMin * 60);
-        else if (mode === 'shortBreak') setTimeLeft(shortBreakMinutes * 60);
-        else if (mode === 'longBreak') setTimeLeft(longBreakMinutes * 60);
-        else setTimeLeft(currentWorkMin * 60); // Default to work
-     } else if (timeLeft === null) {
-         // If active but timeLeft is null (e.g., first load), initialize based on mode
-         if (mode === 'work') setTimeLeft(currentWorkMin * 60);
-         else if (mode === 'shortBreak') setTimeLeft(shortBreakMinutes * 60);
-         else if (mode === 'longBreak') setTimeLeft(longBreakMinutes * 60);
+     // Set initial timeLeft based on loaded settings and current mode
+     // This runs only once, so timeLeft won't be reset unexpectedly
+     if (timeLeft === null) { // Initialize only if not already set (e.g., by active timer)
+         switch (mode) {
+             case 'work': setTimeLeft(currentWorkMin * 60); break;
+             case 'shortBreak': setTimeLeft(currentShortMin * 60); break;
+             case 'longBreak': setTimeLeft(currentLongMin * 60); break;
+             default: setTimeLeft(currentWorkMin * 60);
+         }
      }
-     // Else, keep the existing timeLeft if the timer was already running
 
-   }, [badgeProgress.pomodoroSessionsCompleted, isClient]); // Depend on badgeProgress for initial session count
+   }, []); // Empty dependency array: Run only once on mount
+
+   // Effect 2: Update local session display count when badgeProgress changes
+   useEffect(() => {
+       // Update the display count only when badgeProgress is loaded and available
+       if (!badgesLoading && badgeProgress) {
+           setSessionsCompletedDisplay(badgeProgress.pomodoroSessionsCompleted);
+       }
+   }, [badgeProgress, badgesLoading]); // Depend on badgeProgress and its loading state
 
 
    // Preload audio and request permission only when timer actually starts or switches
@@ -89,10 +94,10 @@ export function PomodoroTimer() {
 
    // Save settings to local storage
    const saveSettings = () => {
+       if (!isClient) return; // Only run on client
        localStorage.setItem('pomodoroWorkMinutes', workMinutes.toString());
        localStorage.setItem('pomodoroShortBreakMinutes', shortBreakMinutes.toString());
        localStorage.setItem('pomodoroLongBreakMinutes', longBreakMinutes.toString());
-       // Removed saving session count here - managed by badge hook
 
        // Update timer if not active and matches the mode being saved
        if (!isActive) {
@@ -102,13 +107,6 @@ export function PomodoroTimer() {
        }
        toast({ title: "Settings Saved", description: "Pomodoro timer settings updated." });
    };
-
-    // // Update session count in local storage whenever it changes (Removed - Handled by badge hook)
-    // useEffect(() => {
-    //     if (isClient) { // Only run on client
-    //         localStorage.setItem('pomodoroSessionsCompleted', sessionsCompleted.toString());
-    //     }
-    // }, [sessionsCompleted, isClient]);
 
 
   const switchMode = useCallback(() => {
@@ -121,10 +119,11 @@ export function PomodoroTimer() {
 
     ensureAudioAndPermissions(); // Ensure audio/perms are ready
 
+    const currentSessionsCompleted = badgeProgress ? badgeProgress.pomodoroSessionsCompleted : 0; // Safely get current count
 
     if (mode === 'work') {
         workSessionJustCompleted = true;
-        const newSessionsCompleted = badgeProgress.pomodoroSessionsCompleted + 1; // Get potential new count
+        const newSessionsCompleted = currentSessionsCompleted + 1; // Calculate potential new count
          // Increment badge count *after* determining the next mode
         incrementPomodoroSessions(); // This updates the central progress
 
@@ -166,37 +165,38 @@ export function PomodoroTimer() {
        });
      }
 
-  }, [mode, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient, ensureAudioAndPermissions, incrementPomodoroSessions, badgeProgress.pomodoroSessionsCompleted]); // Added badge dependencies
+  }, [mode, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient, ensureAudioAndPermissions, incrementPomodoroSessions, badgeProgress]); // Depend on badgeProgress object
 
 
+  // Effect 3: Timer logic
   useEffect(() => {
-      if (!isClient) return; // Don't run timer logic on server
+      if (!isClient || !isActive || timeLeft === null) { // Ensure client, active, and timeLeft is not null
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          return;
+      };
 
-    if (isActive && timeLeft !== null && timeLeft > 0) { // Check timeLeft > 0
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((prevTime) => {
-           if (prevTime === null || prevTime <= 1) { // Check prevTime <= 1
-             clearInterval(intervalRef.current!);
-             switchMode();
-             return 0; // Return 0 when switching modes
-           }
-          return prevTime - 1;
-        });
-      }, 1000);
-     } else if (timeLeft === 0 && isActive) { // Handle case where timer reaches 0
-        switchMode();
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (timeLeft > 0) {
+          intervalRef.current = setInterval(() => {
+              setTimeLeft((prevTime) => {
+                  if (prevTime === null || prevTime <= 1) { // Check prevTime <= 1
+                      if (intervalRef.current) clearInterval(intervalRef.current);
+                      switchMode();
+                      return 0; // Return 0 when switching modes
+                  }
+                  return prevTime - 1;
+              });
+          }, 1000);
+      } else { // timeLeft is 0 or less
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          switchMode();
       }
-    }
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-   }, [isActive, timeLeft, switchMode, isClient]); // Added timeLeft and isClient
+      return () => {
+          if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+          }
+      };
+  }, [isActive, timeLeft, switchMode, isClient]); // Depends on isActive, timeLeft, switchMode, isClient
 
 
   const toggleTimer = () => {
@@ -239,6 +239,7 @@ export function PomodoroTimer() {
   };
 
   const totalDuration = (): number => {
+     if (!isClient) return 0; // Return 0 on server
      switch (mode) {
          case 'work': return workMinutes * 60;
          case 'shortBreak': return shortBreakMinutes * 60;
@@ -250,7 +251,7 @@ export function PomodoroTimer() {
   const progressPercentage = (): number => {
       if (timeLeft === null || !isClient) return 0; // Return 0 if null or on server
     const duration = totalDuration();
-    if (duration === 0) return 0; // Avoid division by zero
+    if (duration <= 0) return 0; // Avoid division by zero or negative duration
     return Math.max(0, Math.min(100, ((duration - timeLeft) / duration) * 100)); // Clamp between 0 and 100
   };
 
@@ -354,8 +355,9 @@ export function PomodoroTimer() {
         </div>
       </CardContent>
       <CardFooter className="text-center text-sm text-muted-foreground mt-4"> {/* Added margin-top */}
-        Total Sessions Completed: {badgeProgress.pomodoroSessionsCompleted}
+        Total Sessions Completed: {isClient && !badgesLoading ? sessionsCompletedDisplay : '...'}
       </CardFooter>
     </Card>
   );
 }
+
