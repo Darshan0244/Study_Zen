@@ -1,19 +1,21 @@
 # StudyZen - Productivity Planner
 
-StudyZen is a Next.js application designed to help students plan their tasks, manage their study sessions using a Pomodoro timer, and generate personalized study plans with the help of AI.
+StudyZen is a Next.js application designed to help students plan their tasks, manage their study sessions using a Pomodoro timer, track their progress with badges and insights, and generate personalized study plans with the help of AI.
 
 ![StudyZen Screenshot](https://picsum.photos/1200/600?grayscale) <!-- Replace with an actual screenshot URL if available -->
 <!-- data-ai-hint: productivity planner app screenshot -->
 
 ## Features
 
-*   **Task Management:** Add, edit, delete, and mark tasks as complete. Tasks can be assigned a subject, priority (High, Medium, Low), and deadline.
-*   **Pomodoro Timer:** A customizable Pomodoro timer with work, short break, and long break modes to enhance focus and manage study sessions effectively. Includes audio and browser notifications.
+*   **Task Management:** Add, edit, delete, and mark tasks as complete. Tasks can be assigned a subject, priority (High, Medium, Low), and deadline. Includes celebratory confetti on task completion.
+*   **Pomodoro Timer:** A customizable Pomodoro timer with work, short break, and long break modes to enhance focus and manage study sessions effectively.
 *   **AI Study Planner:** Leverages Google's Gemini AI (via Genkit) to analyze active tasks and generate a personalized day-by-day study schedule and actionable suggestions.
-*   **Persistence:** Tasks and Pomodoro settings are saved in the browser's local storage.
+*   **Achievements & Badges:** Earn virtual badges for completing tasks, using the Pomodoro timer, and generating AI plans. Track your progress and milestones.
+*   **Study Insights:** Get personalized feedback and tips based on your study habits and badge progress.
+*   **Persistence:** Tasks, Pomodoro settings, and badge progress are saved in the browser's local storage.
 *   **Responsive Design:** Fully responsive UI that works seamlessly on desktop and mobile devices.
 *   **Theme Toggle:** Light and Dark mode support.
-*   **Preloader:** Smooth loading experience with an initial preloader animation.
+*   **Preloader:** Smooth loading experience with an initial preloader animation featuring a writing rabbit GIF and twinkling stars.
 
 ## Tech Stack
 
@@ -25,6 +27,7 @@ StudyZen is a Next.js application designed to help students plan their tasks, ma
 *   **Icons:** [Lucide React](https://lucide.dev/)
 *   **Date Handling:** [date-fns](https://date-fns.org/)
 *   **Markdown Rendering:** [react-markdown](https://github.com/remarkjs/react-markdown)
+*   **Theming:** [next-themes](https://github.com/pacocoursey/next-themes)
 *   **Language:** TypeScript
 
 ## Getting Started
@@ -88,14 +91,14 @@ npm start
 ## Project Structure
 
 *   `src/app/`: Main application routes and layout (Next.js App Router).
-*   `src/components/`: Reusable UI components.
+*   `src/components/`: Reusable UI components (TaskList, PomodoroTimer, AiPlanner, BadgeDisplay, FeedbackDisplay, etc.).
     *   `src/components/ui/`: ShadCN UI components.
 *   `src/ai/`: Genkit AI integration files.
     *   `src/ai/flows/`: Genkit flows (e.g., study plan generation).
     *   `src/ai/ai-instance.ts`: Genkit configuration.
-*   `src/hooks/`: Custom React hooks.
-*   `src/lib/`: Utility functions.
-*   `public/`: Static assets (images, sounds, icons).
+*   `src/hooks/`: Custom React hooks (useToast, useBadges, useMobile).
+*   `src/lib/`: Utility functions and badge definitions.
+*   `public/`: Static assets (images, icons).
 *   `tailwind.config.ts`: Tailwind CSS configuration.
 *   `next.config.ts`: Next.js configuration.
 
