@@ -27,6 +27,7 @@ import { Calendar } from "@/components/ui/calendar"; // Keep this for the compon
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { Confetti } from '@/components/confetti'; // Import the Confetti component
 
 type Priority = 'High' | 'Medium' | 'Low';
 
@@ -49,6 +50,7 @@ export function TaskList() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false); // Track client mount
+  const [showConfetti, setShowConfetti] = useState(false); // State for confetti
 
   // Load tasks from local storage on mount
   useEffect(() => {
@@ -110,16 +112,32 @@ export function TaskList() {
   };
 
   const toggleComplete = (id: string) => {
-    const updatedTasks = tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      );
+    let taskCompleted = false;
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === id) {
+        if (!task.completed) { // Only trigger confetti if marking as complete
+             taskCompleted = true;
+           }
+        return { ...task, completed: !task.completed };
+      }
+      return task;
+     });
+
     setTasks(updatedTasks);
+
      const updatedTask = updatedTasks.find(task => task.id === id);
      if (updatedTask) {
        toast({
-         title: `Task ${!updatedTask.completed ? 'marked as incomplete' : 'completed'}`, // Corrected logic based on new state
+         title: `Task ${updatedTask.completed ? 'completed!' : 'marked as incomplete'}`, // Adjusted message
          description: `"${updatedTask.taskName}" status updated.`,
        });
+
+       // Trigger confetti if the task was just marked as complete
+       if (taskCompleted) {
+         setShowConfetti(true);
+         // Hide confetti after a short duration
+         setTimeout(() => setShowConfetti(false), 4000); // Show confetti for 4 seconds
+       }
      }
   };
 
@@ -180,7 +198,10 @@ export function TaskList() {
 
 
   return (
-    <Card className="w-full shadow-lg">
+    <Card className="w-full shadow-lg relative overflow-hidden"> {/* Added relative and overflow-hidden */}
+      {/* Conditionally render confetti */}
+      {showConfetti && <Confetti />}
+
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-primary">My Tasks</CardTitle>
         <CardDescription>Manage your assignments and study goals. Add tasks using the form below.</CardDescription>
@@ -196,7 +217,7 @@ export function TaskList() {
                placeholder="New Task Name"
                value={newTaskName}
                onChange={(e) => setNewTaskName(e.target.value)}
-               className="w-full"
+               className="w-full transition-shadow duration-200 focus:shadow-outline-primary" // Added focus shadow
                aria-label="New Task Name"
              />
            </div>
@@ -208,14 +229,14 @@ export function TaskList() {
                placeholder="Subject"
                value={newTaskSubject}
                onChange={(e) => setNewTaskSubject(e.target.value)}
-               className="w-full"
+               className="w-full transition-shadow duration-200 focus:shadow-outline-primary" // Added focus shadow
                aria-label="New Task Subject"
              />
            </div>
            <div> {/* Priority */}
              <Label htmlFor="new-task-priority">Priority</Label>
              <Select value={newTaskPriority} onValueChange={(value: string) => setNewTaskPriority(value as Priority)}>
-               <SelectTrigger id="new-task-priority" className="w-full" aria-label="New Task Priority">
+               <SelectTrigger id="new-task-priority" className="w-full transition-shadow duration-200 focus:shadow-outline-primary" aria-label="New Task Priority"> {/* Added focus shadow */}
                  <SelectValue placeholder="Priority" />
                </SelectTrigger>
                <SelectContent>
@@ -233,7 +254,7 @@ export function TaskList() {
                      id="new-task-deadline"
                      variant={"outline"}
                      className={cn(
-                       "w-full justify-start text-left font-normal",
+                       "w-full justify-start text-left font-normal transition-colors duration-200 hover:border-primary", // Enhanced hover
                        !newTaskDeadline && "text-muted-foreground"
                      )}
                    >
@@ -252,7 +273,7 @@ export function TaskList() {
                </Popover>
              </div>
            <div className="sm:col-span-2 lg:col-span-1 flex items-end"> {/* Add Button - Adjust span for alignment */}
-             <Button onClick={addTask} aria-label="Add New Task" className="w-full">
+             <Button onClick={addTask} aria-label="Add New Task" className="w-full"> {/* Hover effect from button.tsx */}
                <Plus className="h-4 w-4 mr-1" /> Add Task
              </Button>
            </div>
@@ -264,17 +285,23 @@ export function TaskList() {
              <p className="text-center text-muted-foreground py-8">No tasks yet. Add one above to get started!</p> /* Increased padding */
           ) : (
              tasks.map((task) => (
-              <Card key={task.id} className={`flex items-center p-3 justify-between border-l-4 ${getPriorityColor(task.priority)} ${task.completed ? 'opacity-60 bg-muted/30' : ''} hover:shadow-md transition-shadow duration-200 flex-wrap sm:flex-nowrap`}> {/* Added flex-wrap */}
+              <Card
+                key={task.id}
+                className={cn(
+                    `flex items-center p-3 justify-between border-l-4 ${getPriorityColor(task.priority)} flex-wrap sm:flex-nowrap transition-all duration-300 ease-in-out`,
+                    task.completed ? 'opacity-60 bg-muted/30' : 'bg-card hover:shadow-lg hover:border-primary/50 hover:scale-[1.01]' // Enhanced hover for non-completed
+                )}
+              >
                 <div className="flex items-center gap-3 flex-grow mr-2 overflow-hidden w-full sm:w-auto mb-2 sm:mb-0"> {/* Responsive width and margin */}
                   <Checkbox
                     id={`task-${task.id}`}
                     checked={task.completed}
                     onCheckedChange={() => toggleComplete(task.id)}
                     aria-labelledby={`task-label-${task.id}`}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 transition-transform duration-200 hover:scale-110" // Hover effect for checkbox
                   />
                   <div className="flex flex-col overflow-hidden min-w-0"> {/* Ensure text container doesn't overflow */}
-                    <span id={`task-label-${task.id}`} className={`font-medium break-words ${task.completed ? 'line-through' : ''}`}>{task.taskName}</span> {/* Allow words to break */}
+                    <span id={`task-label-${task.id}`} className={`font-medium break-words ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.taskName}</span> {/* Dim completed text */}
                     <span className="text-xs text-muted-foreground mt-1"> {/* Added margin-top */}
                       {task.subject} - {task.deadline ? format(task.deadline, 'MMM d, yyyy') : 'No deadline'} - P: {task.priority} {/* Abbreviated priority */}
                     </span>
@@ -283,7 +310,7 @@ export function TaskList() {
                 <div className="flex gap-1 shrink-0 justify-end w-full sm:w-auto"> {/* Justify end on small screens */}
                    <Dialog open={editingTask?.id === task.id} onOpenChange={(isOpen) => !isOpen && cancelEdit()}>
                       <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => startEditing(task)} aria-label={`Edit task ${task.taskName}`}>
+                        <Button variant="ghost" size="icon" onClick={() => startEditing(task)} aria-label={`Edit task ${task.taskName}`} className="hover:bg-accent rounded-full"> {/* Enhanced hover */}
                           <Edit className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
@@ -359,7 +386,7 @@ export function TaskList() {
                         </DialogContent>
                       )}
                    </Dialog>
-                  <Button variant="ghost" size="icon" onClick={() => deleteTask(task.id)} className="text-destructive hover:text-destructive/90" aria-label={`Delete task ${task.taskName}`}>
+                  <Button variant="ghost" size="icon" onClick={() => deleteTask(task.id)} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 rounded-full" aria-label={`Delete task ${task.taskName}`}> {/* Enhanced hover */}
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

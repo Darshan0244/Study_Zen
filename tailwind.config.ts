@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
     darkMode: ["class", ".dark"], // Remove .sepia selector
@@ -9,6 +10,11 @@ export default {
   ],
   theme: {
   	extend: {
+        fontFamily: {
+             sans: ["var(--font-inter)", ...fontFamily.sans],
+             mono: ["var(--font-roboto-mono)", ...fontFamily.mono],
+             marker: ["var(--font-permanent-marker)"], // Add marker font
+         },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -111,13 +117,46 @@ export default {
                 '0%, 100%': { opacity: '1', transform: 'scale(1)' },
                 '50%': { opacity: '0.5', transform: 'scale(0.8)' },
             },
+             // Add twinkling star animation
+             twinkle: {
+                 '0%, 100%': { opacity: '0.1', transform: 'scale(0.7)' },
+                 '50%': { opacity: '1', transform: 'scale(1.1)' },
+             },
+              // Add text glow animation
+              'text-glow': {
+                 '0%, 100%': {
+                   textShadow: `
+                     0 0 5px hsl(var(--foreground) / 0.6),
+                     0 0 10px hsl(var(--foreground) / 0.4),
+                     0 0 15px hsl(var(--foreground) / 0.2)
+                   `,
+                   color: 'hsl(var(--foreground))',
+                 },
+                 '50%': {
+                   textShadow: `
+                     0 0 8px hsl(var(--foreground) / 0.8),
+                     0 0 15px hsl(var(--foreground) / 0.5),
+                     0 0 20px hsl(var(--foreground) / 0.3)
+                   `,
+                   color: 'hsl(var(--foreground) / 1.2)', // Slight brightness increase
+                 },
+               },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
             // Add pulse-dot animation utility
             'pulse-dot': 'pulse-dot 1.4s infinite ease-in-out both',
+            // Add twinkling star animation utility
+            twinkle: 'twinkle 1s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate',
+            // Add text glow animation utility
+             'text-glow': 'text-glow 2.5s infinite ease-in-out alternate',
   		},
+        // Add custom box-shadow utility
+         boxShadow: {
+           'outline-primary': '0 0 0 3px hsl(var(--primary) / 0.3)', // Example focus outline
+           'glow-primary': '0 0 15px 3px hsl(var(--primary) / 0.4)', // Example glow effect
+         },
         // Add typography styles for markdown
         typography: ({ theme }: { theme: (key: string) => any }) => ({ // Need to type theme function
           DEFAULT: {
