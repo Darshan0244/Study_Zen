@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-    darkMode: ["class", '[class="sepia"]'], // Add 'sepia' class for theme targeting
+    darkMode: ["class", ".dark", ".sepia"], // Add .sepia selector
     content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
