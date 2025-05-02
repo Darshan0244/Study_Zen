@@ -28,12 +28,25 @@ body {
     --input: 214.3 31.8% 91.4%; /* Light Grayish Blue - kept */
     --ring: 103 31% 43%; /* Primary green for focus rings */
 
-    /* Added specific color variables */
+    /* Base color variables */
     --white: 0 0% 100%;
     --red: 0 84% 60%; /* Same as destructive */
     --blue: 217 91% 60%; /* Original blue for specific cases if needed */
     --orange: 35 100% 58%; /* Same as accent */
     --green: 103 31% 43%; /* Same as primary */
+
+    /* Additional Colors - Light Mode */
+    --teal: 174 72% 56%;    /* Teal */
+    --lavender: 250 60% 80%; /* Lavender */
+    --gray-blue: 215 30% 60%; /* Gray-Blue */
+    --gold: 45 80% 60%;     /* Gold */
+    --coral: 16 100% 65%;   /* Coral */
+    --lime-green: 84 70% 55%;  /* Lime Green */
+    --sky-blue: 195 85% 75%;  /* Sky Blue */
+    --rose: 340 80% 75%;    /* Rose */
+    --warm-gray: 30 10% 85%;  /* Warm Gray */
+    --off-white: 40 100% 98%; /* Off-White */
+    --stone: 40 15% 75%;    /* Stone */
 
 
     --chart-1: 103 31% 43%; /* Green */
@@ -41,6 +54,10 @@ body {
     --chart-3: 35 100% 83%; /* Peach */
     --chart-4: 0 84% 60%; /* Red */
     --chart-5: 217 91% 60%; /* Blue (Fallback) */
+    --chart-6: 174 72% 56%; /* Teal */
+    --chart-7: 250 60% 80%; /* Lavender */
+    --chart-8: 16 100% 65%; /* Coral */
+
     --radius: 0.5rem;
     /* Keep sidebar colors distinct for now */
     --sidebar-background: 0 0% 98%;
@@ -73,18 +90,36 @@ body {
     --input: 217.2 32.6% 17.5%; /* Dark Blue/Gray - kept */
     --ring: 103 31% 53%; /* Lighter primary green for focus rings */
 
-     /* Added specific color variables for dark mode */
+     /* Base color variables for dark mode */
     --white: 0 0% 100%; /* White remains white */
     --red: 0 84% 70%; /* Lighter red */
     --blue: 217 91% 65%; /* Lighter original blue */
     --orange: 35 100% 65%; /* Lighter orange */
     --green: 103 31% 53%; /* Lighter green */
 
+    /* Additional Colors - Dark Mode */
+    --teal: 174 60% 45%;    /* Darker Teal */
+    --lavender: 250 40% 65%; /* Darker Lavender */
+    --gray-blue: 215 20% 40%; /* Darker Gray-Blue */
+    --gold: 45 60% 50%;     /* Darker Gold */
+    --coral: 16 80% 55%;   /* Darker Coral */
+    --lime-green: 84 60% 40%;  /* Darker Lime Green */
+    --sky-blue: 195 70% 55%;  /* Darker Sky Blue */
+    --rose: 340 60% 60%;    /* Darker Rose */
+    --warm-gray: 30 5% 30%;   /* Darker Warm Gray */
+    --off-white: 40 50% 88%; /* Slightly darker Off-White */
+    --stone: 40 10% 50%;    /* Darker Stone */
+
+
     --chart-1: 103 31% 53%; /* Light Green */
     --chart-2: 35 100% 65%; /* Light Orange */
     --chart-3: 35 100% 78%; /* Light Peach */
     --chart-4: 0 84% 70%; /* Light Red */
     --chart-5: 217 91% 65%; /* Light Blue (Fallback) */
+    --chart-6: 174 60% 45%; /* Darker Teal */
+    --chart-7: 250 40% 65%; /* Darker Lavender */
+    --chart-8: 16 80% 55%; /* Darker Coral */
+
     /* Keep sidebar colors distinct for now */
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

@@ -40,12 +40,25 @@ export default {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
   			},
-            // Expose specific colors using HSL variables
+            // Base color variables
              white: 'hsl(var(--white))',
              red: 'hsl(var(--red))',
              blue: 'hsl(var(--blue))',
              orange: 'hsl(var(--orange))',
              green: 'hsl(var(--green))',
+
+             // Additional Colors mapped from CSS variables
+             teal: 'hsl(var(--teal))',
+             lavender: 'hsl(var(--lavender))',
+             'gray-blue': 'hsl(var(--gray-blue))',
+             gold: 'hsl(var(--gold))',
+             coral: 'hsl(var(--coral))',
+             'lime-green': 'hsl(var(--lime-green))',
+             'sky-blue': 'hsl(var(--sky-blue))',
+             rose: 'hsl(var(--rose))',
+             'warm-gray': 'hsl(var(--warm-gray))',
+             'off-white': 'hsl(var(--off-white))',
+             stone: 'hsl(var(--stone))',
 
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
@@ -55,7 +68,10 @@ export default {
   				'2': 'hsl(var(--chart-2))',
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
+  				'5': 'hsl(var(--chart-5))',
+                '6': 'hsl(var(--chart-6))', // Add chart colors
+                '7': 'hsl(var(--chart-7))',
+                '8': 'hsl(var(--chart-8))'
   			},
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',

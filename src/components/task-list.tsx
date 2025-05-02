@@ -168,7 +168,7 @@ export function TaskList() {
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
       case 'High':
-        return 'border-l-destructive'; // Red
+        return 'border-l-red'; // Use theme red
       case 'Medium':
         return 'border-l-orange'; // Use theme orange
       case 'Low':
