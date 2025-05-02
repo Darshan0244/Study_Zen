@@ -118,14 +118,15 @@ export function useBadges() {
       if (!earnedBadges.has(badge.id) && badge.criteria(criteriaData)) {
         updatedEarnedBadges.add(badge.id);
         newlyEarned = true;
-        // Show a toast notification for newly earned badge
+        // Show a toast notification for newly earned badge using accent color
         toast({
           title: "Badge Earned!",
           description: `You've earned the "${badge.name}" badge! Check the Badges tab.`,
-           className: "bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700", // Custom style for success
+           // Updated: Use accent color styling similar to suggestion alerts
+           className: "bg-accent/10 dark:bg-accent/20 border border-accent/40 text-accent-foreground",
            duration: 6000, // Show longer
-           // You could add an icon here too:
-           // action: <Award className="h-5 w-5 text-yellow-500" />, // Example icon
+           // Optional: Add an icon using the action prop if desired
+           // action: <Award className="h-5 w-5 text-accent" />,
         });
       }
     });
