@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Play, Pause, RotateCcw, Settings, Minus, Plus } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { Play, Pause, RotateCcw, Settings } from 'lucide-react'; // Removed Minus, Plus as they are not used
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -51,16 +50,7 @@ export function PomodoroTimer() {
      // Set initial timeLeft only after loading settings
      setTimeLeft(currentWorkMin * 60);
 
-     // Preload audio only on the client
-     if (typeof window !== "undefined") {
-       // Preload audio and request notification permission lazily if needed
-       // audioRef.current = new Audio('/sounds/timer-end.mp3');
-       // if (audioRef.current) {
-       //   audioRef.current.load();
-       // }
-     }
-
-   }, []);
+   }, []); // Empty dependency array
 
 
    // Preload audio and request permission only when timer actually starts or switches
@@ -68,7 +58,8 @@ export function PomodoroTimer() {
       if (!isClient) return;
 
        if (!audioRef.current && typeof window !== "undefined") {
-           audioRef.current = new Audio('/sounds/timer-end.mp3'); // Ensure you have this sound file in public/sounds
+           // Ensure you have this sound file in public/sounds
+           audioRef.current = new Audio('/sounds/timer-end.mp3');
            if (audioRef.current) {
                audioRef.current.load();
            }
@@ -252,31 +243,36 @@ export function PomodoroTimer() {
 
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg">
+     // Add bottom margin for spacing
+    <Card className="w-full max-w-md mx-auto shadow-lg mb-8 md:mb-10">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold text-primary">Pomodoro Timer</CardTitle>
         <CardDescription>Stay focused and take effective breaks.</CardDescription>
-        <div className="flex flex-wrap justify-center gap-2 mt-4"> {/* Added flex-wrap */}
-            <Button variant={mode === 'work' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('work'); setTimeLeft(workMinutes * 60); setIsActive(false); } }}>Work</Button>
-            <Button variant={mode === 'shortBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('shortBreak'); setTimeLeft(shortBreakMinutes * 60); setIsActive(false); } }}>Short Break</Button>
-            <Button variant={mode === 'longBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('longBreak'); setTimeLeft(longBreakMinutes * 60); setIsActive(false); } }}>Long Break</Button>
+         <div className="flex flex-wrap justify-center gap-2 mt-4"> {/* Added flex-wrap */}
+            {/* Enhanced Button Styling */}
+            <Button variant={mode === 'work' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('work'); setTimeLeft(workMinutes * 60); setIsActive(false); } }} className="transition-all duration-200 ease-in-out hover:scale-105">Work</Button>
+            <Button variant={mode === 'shortBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('shortBreak'); setTimeLeft(shortBreakMinutes * 60); setIsActive(false); } }} className="transition-all duration-200 ease-in-out hover:scale-105">Short Break</Button>
+            <Button variant={mode === 'longBreak' ? 'default' : 'outline'} size="sm" onClick={() => { if(isClient) { setMode('longBreak'); setTimeLeft(longBreakMinutes * 60); setIsActive(false); } }} className="transition-all duration-200 ease-in-out hover:scale-105">Long Break</Button>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-8 pt-4"> {/* Increased gap and padding */}
-        <div className="relative w-48 h-48 sm:w-56 sm:h-56"> {/* Slightly larger on small screens */}
+        {/* Enhanced Timer Display */}
+        <div className="relative w-48 h-48 sm:w-56 sm:h-56 group transition-transform duration-300 ease-out hover:scale-105">
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+             {/* Subtle background circle */}
              <circle
-               className="text-muted"
-               strokeWidth="5"
+               className="text-muted/30"
+               strokeWidth="6" // Slightly thicker background
                stroke="currentColor"
                fill="transparent"
                r="45"
                cx="50"
                cy="50"
              />
+             {/* Progress circle with smoother transition */}
              <circle
-               className="text-primary transition-all duration-1000 ease-linear" // Added transition
-               strokeWidth="5"
+               className="text-primary transition-all duration-1000 ease-linear group-hover:stroke-[hsl(var(--primary)/0.8)]" // Change color slightly on hover
+               strokeWidth="6" // Match background thickness
                strokeDasharray={2 * Math.PI * 45}
                strokeDashoffset={(2 * Math.PI * 45) * (1 - progressPercentage() / 100)}
                strokeLinecap="round"
@@ -288,21 +284,22 @@ export function PomodoroTimer() {
                 style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
              />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-5xl sm:text-6xl font-mono font-bold text-foreground">
+           <div className="absolute inset-0 flex items-center justify-center text-5xl sm:text-6xl font-mono font-bold text-foreground transition-colors duration-300 group-hover:text-primary"> {/* Text color change on hover */}
             {formatTime(timeLeft)}
           </div>
         </div>
         <div className="flex flex-wrap justify-center gap-3 sm:gap-4"> {/* Added flex-wrap and adjusted gap */}
-          <Button onClick={toggleTimer} size="lg" className="min-w-[100px] sm:min-w-[120px]" aria-label={isActive ? 'Pause Timer' : 'Start Timer'}> {/* Responsive min-width */}
+          {/* Enhanced Control Buttons */}
+           <Button onClick={toggleTimer} size="lg" className="min-w-[100px] sm:min-w-[120px] transition-transform duration-150 ease-in-out hover:scale-105 active:scale-100" aria-label={isActive ? 'Pause Timer' : 'Start Timer'}> {/* Responsive min-width */}
             {isActive ? <Pause className="h-5 w-5 sm:h-6 sm:w-6 mr-1" /> : <Play className="h-5 w-5 sm:h-6 sm:w-6 mr-1" />} {/* Responsive icons */}
             {isActive ? 'Pause' : 'Start'}
           </Button>
-          <Button onClick={resetTimer} variant="outline" size="lg" aria-label="Reset Timer">
+          <Button onClick={resetTimer} variant="outline" size="lg" className="transition-transform duration-150 ease-in-out hover:scale-105 active:scale-100" aria-label="Reset Timer">
             <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" /> {/* Responsive icons */}
           </Button>
            <Dialog>
              <DialogTrigger asChild>
-                <Button variant="outline" size="lg" aria-label="Timer Settings">
+                <Button variant="outline" size="lg" className="transition-transform duration-150 ease-in-out hover:scale-105 active:scale-100" aria-label="Timer Settings">
                     <Settings className="h-4 w-4 sm:h-5 sm:w-5" /> {/* Responsive icons */}
                 </Button>
              </DialogTrigger>

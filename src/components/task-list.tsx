@@ -67,7 +67,7 @@ export function TaskList() {
        } catch (error) {
          console.error("Failed to parse tasks from local storage:", error);
          setTasks([]); // Fallback to empty array if parsing fails
-         localStorage.removeItem('studyZenTasks'); // Optional: remove invalid data
+         // localStorage.removeItem('studyZenTasks'); // Optional: remove invalid data
        }
     } else {
         setTasks([]); // Initialize with empty array if nothing in storage
@@ -100,6 +100,8 @@ export function TaskList() {
       priority: newTaskPriority,
       completed: false,
     };
+    // Add task with a slight delay for animation effect if using libraries like framer-motion
+    // For now, simple state update
     setTasks([newTask, ...tasks]);
     setNewTaskName('');
     setNewTaskSubject('');
@@ -144,6 +146,7 @@ export function TaskList() {
 
   const deleteTask = (id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
+     // Add animation logic here if using framer-motion
     setTasks(tasks.filter((task) => task.id !== id));
      if (taskToDelete) {
        toast({
@@ -183,22 +186,23 @@ export function TaskList() {
     setEditingTask(null);
   };
 
-  const getPriorityColor = (priority: Priority) => {
+  const getPriorityClasses = (priority: Priority) => {
     switch (priority) {
       case 'High':
-        return 'border-l-red'; // Use theme red
+        return 'border-l-red border-l-4'; // Use theme red, thicker border
       case 'Medium':
-        return 'border-l-orange'; // Use theme orange
+        return 'border-l-orange border-l-4'; // Use theme orange, thicker border
       case 'Low':
-        return 'border-l-green'; // Use theme green
+        return 'border-l-green border-l-4'; // Use theme green, thicker border
       default:
-        return 'border-l-muted';
+        return 'border-l-muted border-l-4';
     }
   };
 
 
   return (
-    <Card className="w-full shadow-lg relative overflow-hidden"> {/* Added relative and overflow-hidden */}
+    // Increase bottom margin for spacing
+    <Card className="w-full shadow-lg relative overflow-hidden mb-8 md:mb-10">
       {/* Conditionally render confetti */}
       {showConfetti && <Confetti />}
 
@@ -273,14 +277,14 @@ export function TaskList() {
                </Popover>
              </div>
            <div className="sm:col-span-2 lg:col-span-1 flex items-end"> {/* Add Button - Adjust span for alignment */}
-             <Button onClick={addTask} aria-label="Add New Task" className="w-full"> {/* Hover effect from button.tsx */}
+             <Button onClick={addTask} aria-label="Add New Task" className="w-full transition-transform duration-150 ease-in-out hover:scale-105 active:scale-100"> {/* Hover effect */}
                <Plus className="h-4 w-4 mr-1" /> Add Task
              </Button>
            </div>
          </div>
 
         {/* Task List */}
-        <div className="space-y-4"> {/* Increased spacing between tasks */}
+        <div className="space-y-3"> {/* Slightly reduced spacing between tasks */}
           {tasks.length === 0 && isClient ? ( // Only show 'No tasks' after client has loaded
              <p className="text-center text-muted-foreground py-8">No tasks yet. Add one above to get started!</p> /* Increased padding */
           ) : (
@@ -288,8 +292,11 @@ export function TaskList() {
               <Card
                 key={task.id}
                 className={cn(
-                    `flex items-center p-3 justify-between border-l-4 ${getPriorityColor(task.priority)} flex-wrap sm:flex-nowrap transition-all duration-300 ease-in-out`,
-                    task.completed ? 'opacity-60 bg-muted/30' : 'bg-card hover:shadow-lg hover:border-primary/50 hover:scale-[1.01]' // Enhanced hover for non-completed
+                    `flex items-center p-3 justify-between ${getPriorityClasses(task.priority)} flex-wrap sm:flex-nowrap transition-all duration-300 ease-in-out group`, // Added group for hover effects on children
+                    task.completed
+                      ? 'opacity-60 bg-muted/30'
+                      // Enhanced hover for non-completed: brighter shadow, subtle scale
+                      : 'bg-card hover:shadow-md hover:shadow-primary/20 hover:scale-[1.02]'
                 )}
               >
                 <div className="flex items-center gap-3 flex-grow mr-2 overflow-hidden w-full sm:w-auto mb-2 sm:mb-0"> {/* Responsive width and margin */}
@@ -298,19 +305,26 @@ export function TaskList() {
                     checked={task.completed}
                     onCheckedChange={() => toggleComplete(task.id)}
                     aria-labelledby={`task-label-${task.id}`}
-                    className="flex-shrink-0 transition-transform duration-200 hover:scale-110" // Hover effect for checkbox
+                     className="flex-shrink-0 transition-transform duration-200 hover:scale-110" // Hover effect for checkbox
                   />
                   <div className="flex flex-col overflow-hidden min-w-0"> {/* Ensure text container doesn't overflow */}
-                    <span id={`task-label-${task.id}`} className={`font-medium break-words ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.taskName}</span> {/* Dim completed text */}
+                    <span id={`task-label-${task.id}`} className={cn(
+                        "font-medium break-words transition-colors duration-200",
+                        task.completed ? 'line-through text-muted-foreground' : 'text-card-foreground group-hover:text-primary' // Change color on hover
+                     )}>
+                        {task.taskName}
+                     </span>
                     <span className="text-xs text-muted-foreground mt-1"> {/* Added margin-top */}
-                      {task.subject} - {task.deadline ? format(task.deadline, 'MMM d, yyyy') : 'No deadline'} - P: {task.priority} {/* Abbreviated priority */}
+                       {/* Abbreviated priority */}
+                      {task.subject} - {task.deadline ? format(task.deadline, 'MMM d, yyyy') : 'No deadline'} - Priority: {task.priority}
                     </span>
                   </div>
                 </div>
-                <div className="flex gap-1 shrink-0 justify-end w-full sm:w-auto"> {/* Justify end on small screens */}
+                <div className="flex gap-1 shrink-0 justify-end w-full sm:w-auto transition-opacity duration-200 sm:opacity-0 group-hover:opacity-100"> {/* Actions appear on hover */}
                    <Dialog open={editingTask?.id === task.id} onOpenChange={(isOpen) => !isOpen && cancelEdit()}>
                       <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => startEditing(task)} aria-label={`Edit task ${task.taskName}`} className="hover:bg-accent rounded-full"> {/* Enhanced hover */}
+                        {/* Improved button styling */}
+                        <Button variant="ghost" size="icon" onClick={() => startEditing(task)} aria-label={`Edit task ${task.taskName}`} className="hover:bg-accent rounded-full text-muted-foreground hover:text-accent-foreground transform hover:scale-110 transition-transform duration-150">
                           <Edit className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
@@ -386,9 +400,10 @@ export function TaskList() {
                         </DialogContent>
                       )}
                    </Dialog>
-                  <Button variant="ghost" size="icon" onClick={() => deleteTask(task.id)} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 rounded-full" aria-label={`Delete task ${task.taskName}`}> {/* Enhanced hover */}
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                   {/* Improved button styling */}
+                   <Button variant="ghost" size="icon" onClick={() => deleteTask(task.id)} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 rounded-full transform hover:scale-110 transition-transform duration-150" aria-label={`Delete task ${task.taskName}`}>
+                     <Trash2 className="h-4 w-4" />
+                   </Button>
                 </div>
               </Card>
              ))

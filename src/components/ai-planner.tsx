@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from '@/components/ui/separator';
 import ReactMarkdown from 'react-markdown'; // Import react-markdown
-
+import { Skeleton } from '@/components/ui/skeleton'; // Import Skeleton for loading state
 
 // Define the Task interface again or import if defined elsewhere globally
 type Priority = 'High' | 'Medium' | 'Low';
@@ -30,27 +30,28 @@ export function AiPlanner() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false); // Track client mount
+  const [tasksLoading, setTasksLoading] = useState(true); // State for initial task loading
 
    // Load tasks from local storage on mount (client-side only)
   useEffect(() => {
      setIsClient(true); // Now we are on the client
-    const storedTasks = localStorage.getItem('studyZenTasks');
-     if (storedTasks) {
-       try {
+    try {
+       const storedTasks = localStorage.getItem('studyZenTasks');
+       if (storedTasks) {
          const parsedTasks = JSON.parse(storedTasks).map((task: any) => ({
            ...task,
            deadline: task.deadline ? new Date(task.deadline) : null,
          }));
          // Set tasks from storage if valid, otherwise keep empty
          setTasks(Array.isArray(parsedTasks) ? parsedTasks : []);
-       } catch (error) {
-         console.error("Failed to parse tasks for AI Planner:", error);
-         // Handle error, maybe show a toast or use default empty tasks
-          setTasks([]); // Set to empty array on error
-          // Optionally remove invalid data: localStorage.removeItem('studyZenTasks');
+       } else {
+         setTasks([]); // Set to empty if nothing in storage
        }
-     } else {
-        setTasks([]); // Set to empty if nothing in storage
+     } catch (error) {
+       console.error("Failed to parse tasks for AI Planner:", error);
+       setTasks([]); // Set to empty array on error
+     } finally {
+         setTasksLoading(false); // Mark tasks as loaded (or failed)
      }
   }, []);
 
@@ -58,7 +59,7 @@ export function AiPlanner() {
   const hasActiveTasks = activeTasks.length > 0;
 
   const handleGeneratePlan = async () => {
-      if (!isClient) return; // Guard against server-side execution
+      if (!isClient || tasksLoading) return; // Guard against server-side execution or while tasks are loading
 
     setIsLoading(true);
     setStudyPlan(null); // Clear previous plan
@@ -115,7 +116,8 @@ export function AiPlanner() {
   };
 
   return (
-    <Card className="w-full shadow-lg">
+     // Add bottom margin for spacing
+    <Card className="w-full shadow-lg mb-8 md:mb-10">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-primary flex items-center gap-2">
            <BrainCircuit className="h-6 w-6" /> AI Study Planner
@@ -123,7 +125,7 @@ export function AiPlanner() {
         <CardDescription>Let AI craft a personalized study schedule and offer helpful suggestions based on your active tasks.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 pt-4"> {/* Increased spacing */}
-         <Alert variant="default" className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800">
+         <Alert variant="default" className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 shadow-sm hover:shadow-md transition-shadow duration-200"> {/* Added subtle shadow and hover effect */}
            <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
            <AlertTitle className="text-blue-800 dark:text-blue-300">How it works</AlertTitle>
            <AlertDescription className="text-blue-700 dark:text-blue-400">
@@ -131,13 +133,14 @@ export function AiPlanner() {
            </AlertDescription>
          </Alert>
 
-         {!isClient && ( // Show loading state for tasks on initial render
-            <div className="flex items-center justify-center p-4 text-muted-foreground">
-                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading tasks...
+         {tasksLoading && ( // Show loading skeleton for tasks on initial render
+            <div className="space-y-2 p-4">
+                 <Skeleton className="h-4 w-3/4" />
+                 <Skeleton className="h-4 w-1/2" />
             </div>
           )}
 
-         {isClient && !hasActiveTasks && ( // Show message if no active tasks after client load
+         {!tasksLoading && !hasActiveTasks && isClient && ( // Show message if no active tasks after client load
              <Alert variant="destructive">
                  <ListChecks className="h-4 w-4" />
                <AlertTitle>No Active Tasks Found</AlertTitle>
@@ -147,23 +150,25 @@ export function AiPlanner() {
              </Alert>
          )}
 
-         {isClient && hasActiveTasks && ( // Show button only if client loaded and has tasks
+         {isClient && !tasksLoading && hasActiveTasks && ( // Show button only if client loaded, tasks loaded, and has tasks
              <div className="flex justify-center"> {/* Center the button */}
-                 {/* Adjusted button size for better responsiveness */}
+                 {/* Adjusted button size and added transition/hover effect */}
                 <Button
                     onClick={handleGeneratePlan}
                     disabled={isLoading}
-                    size="default" // Use default size, which adapts better than lg
-                    className="w-full sm:w-auto" // Full width on small, auto on larger
+                    size="lg" // Make button larger
+                    className="w-full sm:w-auto transition-transform duration-150 ease-in-out hover:scale-105 active:scale-100" // Enhanced hover effect
                 >
                 {isLoading ? (
                     <>
-                    <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> {/* Responsive icon */}
+                     {/* Make loader more prominent */}
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Generating Plan...
                     </>
                 ) : (
                     <>
-                        <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> {/* Responsive icon */}
+                         {/* Make icon slightly larger */}
+                        <Sparkles className="mr-2 h-5 w-5" />
                         Generate My Study Plan
                     </>
                 )}
@@ -172,20 +177,48 @@ export function AiPlanner() {
          )}
 
 
-        {studyPlan && (
-          <div className="mt-6 space-y-6"> {/* Increased margin and spacing for plan */}
+         {isLoading && !studyPlan && ( // Show skeleton while AI is generating
+             <div className="mt-6 space-y-6">
+                <Separator />
+                <div className="space-y-4">
+                     <Skeleton className="h-6 w-1/3 mx-auto" /> {/* Schedule title skeleton */}
+                     <Card className="bg-muted/20 dark:bg-muted/30">
+                         <CardContent className="p-4 space-y-3">
+                              <Skeleton className="h-4 w-1/4" /> {/* Date heading skeleton */}
+                             <Skeleton className="h-4 w-full" />
+                             <Skeleton className="h-4 w-5/6" />
+                             <Skeleton className="h-4 w-full" />
+                         </CardContent>
+                     </Card>
+                </div>
+                 <div className="space-y-4">
+                     <Skeleton className="h-6 w-1/4 mx-auto" /> {/* Suggestions title skeleton */}
+                     <Card className="bg-accent/10 dark:bg-accent/20 border-accent/30">
+                        <CardContent className="p-4 space-y-2">
+                             <Skeleton className="h-4 w-full" />
+                             <Skeleton className="h-4 w-5/6" />
+                             <Skeleton className="h-4 w-full" />
+                        </CardContent>
+                     </Card>
+                 </div>
+            </div>
+          )}
+
+
+        {!isLoading && studyPlan && ( // Show plan only when not loading and plan exists
+          <div className="mt-6 space-y-6 animate-in fade-in duration-500"> {/* Added fade-in animation */}
              <Separator />
 
              {/* Schedule Section */}
              <div>
-                <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
+                 <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
                      <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Your Study Schedule {/* Responsive icon */}
-                </h3>
-                 <Card className="bg-muted/20 dark:bg-muted/30">
+                 </h3>
+                  <Card className="bg-muted/20 dark:bg-muted/30 border border-muted/50 transition-shadow duration-200 hover:shadow-md"> {/* Added border and hover shadow */}
                      <CardContent className="p-4">
                          {/* Use ReactMarkdown to render the schedule */}
                          <ReactMarkdown
-                             className="prose prose-sm sm:prose-base dark:prose-invert max-w-none [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_ul]:list-disc [&_ul]:ml-5 [&_li]:mb-1"
+                              className="prose prose-sm sm:prose-base dark:prose-invert max-w-none [&_h3]:font-semibold [&_h3]:text-lg [&_h3]:mt-4 [&_h3]:mb-2 [&_ul]:list-disc [&_ul]:ml-5 [&_li]:mb-1" // Adjusted heading size
                             // Add components if needed for custom rendering of markdown elements
                             // components={{ ... }}
                          >
@@ -198,10 +231,10 @@ export function AiPlanner() {
              {/* Suggestions Section */}
             {studyPlan.suggestions && studyPlan.suggestions.length > 0 && !studyPlan.schedule.startsWith('**Error:**') && ( // Only show if suggestions exist and no error
               <div>
-                 <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
+                  <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
                    <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-accent" /> AI Suggestions {/* Responsive icon */}
                  </h3>
-                  <Card className="bg-accent/10 dark:bg-accent/20 border-accent/30">
+                   <Card className="bg-accent/10 dark:bg-accent/20 border border-accent/40 transition-shadow duration-200 hover:shadow-md"> {/* Added border and hover shadow */}
                     <CardContent className="p-4">
                         <ul className="list-disc space-y-2 pl-5 text-sm sm:text-base">
                         {studyPlan.suggestions.map((suggestion, index) => (
@@ -216,7 +249,10 @@ export function AiPlanner() {
         )}
       </CardContent>
        <CardFooter className="text-xs sm:text-sm text-muted-foreground mt-6 flex justify-center text-center"> {/* Responsive text size and center */}
-          Plan will be based on {activeTasks.length} active task{activeTasks.length !== 1 ? 's' : ''}.
+           {isClient && !tasksLoading
+             ? `Plan will be based on ${activeTasks.length} active task${activeTasks.length !== 1 ? 's' : ''}.`
+             : 'Loading task info...'
+           }
        </CardFooter>
     </Card>
   );
