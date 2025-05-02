@@ -89,11 +89,18 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+            // Add pulse-dot animation for preloader
+            'pulse-dot': {
+                '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+                '50%': { opacity: '0.5', transform: 'scale(0.8)' },
+            },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+            // Add pulse-dot animation utility
+            'pulse-dot': 'pulse-dot 1.4s infinite ease-in-out both',
   		},
         // Add typography styles for markdown
         typography: ({ theme }: { theme: (key: string) => any }) => ({ // Need to type theme function
