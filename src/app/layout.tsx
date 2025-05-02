@@ -1,18 +1,20 @@
 import type {Metadata} from 'next';
-import {Geist_Mono, Geist_Sans as GeistSans} from 'next/font/google';
+import { Inter, Roboto_Mono } from 'next/font/google'; // Import Inter and Roboto_Mono from next/font/google
 import './globals.css';
 import {cn} from '@/lib/utils';
 import {Toaster} from '@/components/ui/toaster';
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 
-const geistSans = GeistSans({
-  variable: '--font-geist-sans',
+// Configure Inter font
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+// Configure Roboto Mono font
+const robotoMono = Roboto_Mono({
+  variable: '--font-roboto-mono',
   subsets: ['latin'],
 });
 
@@ -31,8 +33,8 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased',
-          geistSans.variable,
-          geistMono.variable
+          inter.variable, // Use Inter variable
+          robotoMono.variable // Use Roboto Mono variable
         )}
       >
         <ThemeProvider
@@ -46,7 +48,8 @@ export default function RootLayout({
               <div className="container flex h-14 items-center justify-between">
                 <div className="mr-4 flex items-center">
                   <a href="/" className="mr-6 flex items-center space-x-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M12 6v12"/><path d="M18 12H6"/></svg>
+                      {/* Replaced SVG with a simple icon representation */}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M12 2 C6.48 2 2 6.48 2 12 s4.48 10 10 10 10-4.48 10-10 S17.52 2 12 2 Z M12 18 c-3.31 0-6-2.69-6-6 s2.69-6 6-6 6 2.69 6 6 -2.69 6-6 6 Z M12 6 v6 l4 2"/></svg> {/* Simple clock/zen like icon */}
                       <span className="font-bold sm:inline-block">
                         StudyZen
                       </span>
