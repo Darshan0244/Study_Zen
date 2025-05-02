@@ -26,6 +26,7 @@ export function Preloader() {
   return (
     <div
       className={cn(
+        'dark', // Force dark mode for the preloader
         'fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background text-primary transition-opacity duration-500 ease-out overflow-hidden' // Added overflow-hidden
       )}
     >
@@ -34,6 +35,7 @@ export function Preloader() {
         {stars.map((star, index) => (
           <div
             key={index}
+            // Apply star and twinkle classes. Use star styling from globals.css
             className="star twinkle"
             style={{
               top: star.top,

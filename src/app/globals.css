@@ -202,9 +202,16 @@ body {
     position: absolute;
     width: 2px;
     height: 2px;
+    /* Default star color for light mode */
     background-color: hsl(var(--primary)); /* Use primary color or a specific star color */
     border-radius: 50%;
     box-shadow: 0 0 5px 1px hsl(var(--primary) / 0.5); /* Optional glow */
+  }
+
+  /* Ensure stars use the dark mode primary color when .dark class is present */
+  .dark .star {
+     background-color: hsl(var(--primary)); /* Explicitly uses dark mode --primary */
+     box-shadow: 0 0 5px 1px hsl(var(--primary) / 0.5);
   }
 
   /* Add a slightly larger star variation */
