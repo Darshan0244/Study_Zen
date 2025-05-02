@@ -27,6 +27,7 @@ export function PomodoroTimer() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null); // Start as null
   const [isActive, setIsActive] = useState(false);
   const [sessionsCompletedDisplay, setSessionsCompletedDisplay] = useState<number>(0); // Local display state
+  const [timerFinished, setTimerFinished] = useState(false); // State to signal timer completion
 
   const { toast } = useToast();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -115,18 +116,15 @@ export function PomodoroTimer() {
     let nextTime: number;
     let notificationTitle = "";
     let notificationDescription = "";
-    let workSessionJustCompleted = false;
 
     ensureAudioAndPermissions(); // Ensure audio/perms are ready
 
     const currentSessionsCompleted = badgeProgress ? badgeProgress.pomodoroSessionsCompleted : 0; // Safely get current count
 
     if (mode === 'work') {
-        workSessionJustCompleted = true;
         const newSessionsCompleted = currentSessionsCompleted + 1; // Calculate potential new count
-         // Increment badge count *after* determining the next mode
+        // Increment badge count *after* determining the next mode
         incrementPomodoroSessions(); // This updates the central progress
-
 
       if (newSessionsCompleted > 0 && newSessionsCompleted % SESSIONS_BEFORE_LONG_BREAK === 0) {
         nextMode = 'longBreak';
@@ -168,35 +166,48 @@ export function PomodoroTimer() {
   }, [mode, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient, ensureAudioAndPermissions, incrementPomodoroSessions, badgeProgress]); // Depend on badgeProgress object
 
 
-  // Effect 3: Timer logic
-  useEffect(() => {
-      if (!isClient || !isActive || timeLeft === null) { // Ensure client, active, and timeLeft is not null
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          return;
-      };
+   // Effect 3: Timer logic - Handles countdown and signals completion
+   useEffect(() => {
+       if (!isClient || !isActive || timeLeft === null) { // Ensure client, active, and timeLeft is not null
+           if (intervalRef.current) clearInterval(intervalRef.current);
+           return;
+       };
 
-      if (timeLeft > 0) {
-          intervalRef.current = setInterval(() => {
-              setTimeLeft((prevTime) => {
-                  if (prevTime === null || prevTime <= 1) { // Check prevTime <= 1
-                      if (intervalRef.current) clearInterval(intervalRef.current);
-                      switchMode();
-                      return 0; // Return 0 when switching modes
-                  }
-                  return prevTime - 1;
-              });
-          }, 1000);
-      } else { // timeLeft is 0 or less
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          switchMode();
-      }
+       if (timeLeft > 0) {
+           intervalRef.current = setInterval(() => {
+               setTimeLeft((prevTime) => {
+                   if (prevTime === null || prevTime <= 1) { // Check prevTime <= 1
+                       if (intervalRef.current) clearInterval(intervalRef.current);
+                       setTimerFinished(true); // Signal that the timer has finished
+                       return 0; // Return 0 when finished
+                   }
+                   return prevTime - 1;
+               });
+           }, 1000);
+       } else { // timeLeft is 0 or less (should theoretically only be 0 due to above logic)
+           if (intervalRef.current) clearInterval(intervalRef.current);
+            // Ensure timerFinished is true if starting from 0 or less while active
+           if (isActive) {
+               setTimerFinished(true);
+           }
+       }
 
-      return () => {
-          if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-          }
-      };
-  }, [isActive, timeLeft, switchMode, isClient]); // Depends on isActive, timeLeft, switchMode, isClient
+       // Cleanup interval on unmount or when dependencies change
+       return () => {
+           if (intervalRef.current) {
+               clearInterval(intervalRef.current);
+           }
+       };
+   // No longer depends on switchMode directly
+   }, [isActive, timeLeft, isClient]);
+
+   // Effect 4: Handle mode switching when timer finishes
+   useEffect(() => {
+       if (timerFinished) {
+           switchMode(); // Call switchMode after render cycle
+           setTimerFinished(false); // Reset the flag
+       }
+   }, [timerFinished, switchMode]); // Depends on timerFinished and switchMode
 
 
   const toggleTimer = () => {
@@ -220,6 +231,7 @@ export function PomodoroTimer() {
       clearInterval(intervalRef.current);
     }
     setIsActive(false);
+    setTimerFinished(false); // Also reset the finished flag
     let resetTime: number;
     switch (mode) {
         case 'work': resetTime = workMinutes * 60; break;
@@ -360,4 +372,3 @@ export function PomodoroTimer() {
     </Card>
   );
 }
-
