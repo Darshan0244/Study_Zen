@@ -1,7 +1,8 @@
+
 'use client'; // Add 'use client' because we need state and effects
 
 import type { Metadata } from 'next';
-import { Inter, Roboto_Mono } from 'next/font/google';
+import { Inter, Roboto_Mono, Permanent_Marker } from 'next/font/google'; // Import Permanent_Marker
 import React, { useState, useEffect } from 'react'; // Import useState and useEffect
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -23,6 +24,14 @@ const robotoMono = Roboto_Mono({
   variable: '--font-roboto-mono',
   subsets: ['latin'],
 });
+
+// Configure Permanent Marker font
+const permanentMarker = Permanent_Marker({
+    variable: '--font-permanent-marker',
+    weight: '400', // Permanent Marker only has a 400 weight
+    subsets: ['latin'],
+});
+
 
 // Cannot export metadata from a client component.
 // If metadata is needed, it should be moved to a server component parent
@@ -55,7 +64,8 @@ export default function RootLayout({
         className={cn(
           'min-h-screen bg-background font-sans antialiased flex flex-col',
           inter.variable,
-          robotoMono.variable
+          robotoMono.variable,
+          permanentMarker.variable // Add permanent marker variable
         )}
       >
         {isLoading ? (
@@ -92,3 +102,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -1,3 +1,4 @@
+
 // src/components/preloader.tsx
 'use client'; // Needed for useState and useEffect
 
@@ -69,7 +70,8 @@ export function Preloader() {
             data-ai-hint="writing rabbit loading animation" // Updated AI Hint for the image
           />
            {/* Add the tagline - Moved above h1 */}
-           <p className="text-lg sm:text-xl font-bold font-mono text-foreground mb-2 animate-text-glow"> {/* Changed mb-4 to mb-2, removed animate-blink, added animate-text-glow */}
+           {/* Apply font-marker class for Permanent Marker font */}
+           <p className="text-lg sm:text-xl font-bold font-marker text-foreground mb-2 animate-text-glow"> {/* Changed font-mono to font-marker */}
              Plan Smarter, Learn Better.
            </p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 animate-pulse">
@@ -86,3 +88,4 @@ export function Preloader() {
     </div>
   );
 }
+

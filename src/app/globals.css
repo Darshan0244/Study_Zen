@@ -168,6 +168,12 @@ body {
   font-family: var(--font-roboto-mono), monospace;
 }
 
+/* Add font-marker class definition */
+.font-marker {
+  font-family: var(--font-permanent-marker), cursive;
+}
+
+
 /* Preloader Animations */
 @layer utilities {
   @keyframes pulse-dot {
