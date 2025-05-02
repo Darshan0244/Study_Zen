@@ -27,6 +27,15 @@ body {
     --border: 214.3 31.8% 91.4%; /* Light Grayish Blue */
     --input: 214.3 31.8% 91.4%; /* Light Grayish Blue */
     --ring: 217 91% 60%; /* Primary blue for focus rings */
+
+    /* Added specific color variables */
+    --white: 0 0% 100%;
+    --red: 0 84% 60%; /* Same as destructive */
+    --blue: 217 91% 60%; /* Same as primary */
+    --orange: 24 95% 53%; /* Same as accent */
+    --green: 142 71% 45%; /* Same as secondary */
+
+
     --chart-1: 217 91% 60%; /* Blue */
     --chart-2: 142 71% 45%; /* Green */
     --chart-3: 24 95% 53%; /* Orange */
@@ -63,6 +72,14 @@ body {
     --border: 217.2 32.6% 17.5%; /* Dark Blue/Gray */
     --input: 217.2 32.6% 17.5%; /* Dark Blue/Gray */
     --ring: 217 91% 65%; /* Lighter primary blue */
+
+     /* Added specific color variables for dark mode */
+    --white: 0 0% 100%; /* White remains white */
+    --red: 0 84% 70%; /* Lighter red */
+    --blue: 217 91% 65%; /* Lighter blue */
+    --orange: 24 95% 60%; /* Lighter orange */
+    --green: 142 71% 55%; /* Lighter green */
+
     --chart-1: 217 91% 65%; /* Light Blue */
     --chart-2: 142 71% 55%; /* Light Green */
     --chart-3: 24 95% 60%; /* Light Orange */

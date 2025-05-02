@@ -5,6 +5,7 @@ import {cn} from '@/lib/utils';
 import {Toaster} from '@/components/ui/toaster';
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Footer } from "@/components/footer"; // Import the Footer component
 
 // Configure Inter font
 const inter = Inter({
@@ -32,7 +33,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          'min-h-screen bg-background font-sans antialiased',
+          'min-h-screen bg-background font-sans antialiased flex flex-col', // Ensure body takes full height and uses flex column
           inter.variable, // Use Inter variable
           robotoMono.variable // Use Roboto Mono variable
         )}
@@ -43,7 +44,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col">
+          <div className="relative flex flex-col flex-1"> {/* Make this div flex-1 to push footer down */}
              <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="container flex h-14 items-center justify-between">
                 <div className="mr-4 flex items-center">
@@ -58,8 +59,10 @@ export default function RootLayout({
                 <ModeToggle />
               </div>
             </header>
-            <main className="flex-1">{children}</main>
+            {/* Make main content area flexible */}
+            <main className="flex-1 w-full">{children}</main>
           </div>
+          <Footer /> {/* Add Footer component */}
           <Toaster />
          </ThemeProvider>
       </body>

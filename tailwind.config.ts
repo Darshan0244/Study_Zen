@@ -40,6 +40,13 @@ export default {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
   			},
+            // Expose specific colors using HSL variables
+             white: 'hsl(var(--white))',
+             red: 'hsl(var(--red))',
+             blue: 'hsl(var(--blue))',
+             orange: 'hsl(var(--orange))',
+             green: 'hsl(var(--green))',
+
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
