@@ -46,7 +46,7 @@ export default function RootLayout({
         >
           <div className="relative flex flex-col flex-1"> {/* Make this div flex-1 to push footer down */}
              <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container flex h-14 items-center justify-between">
+              <div className="container flex h-14 items-center justify-between px-4 md:px-6"> {/* Added horizontal padding */}
                 <div className="mr-4 flex items-center">
                   <a href="/" className="mr-6 flex items-center space-x-2">
                       {/* Replaced SVG with a simple icon representation */}
@@ -59,8 +59,8 @@ export default function RootLayout({
                 <ModeToggle />
               </div>
             </header>
-            {/* Make main content area flexible */}
-            <main className="flex-1 container mx-auto w-full py-4 md:py-8">{children}</main> {/* Added container and padding */}
+            {/* Ensure main content area has consistent padding */}
+            <main className="flex-1 container w-full py-6 md:py-10 px-4 md:px-6">{children}</main> {/* Adjusted padding */}
           </div>
           <Footer /> {/* Add Footer component */}
           <Toaster />

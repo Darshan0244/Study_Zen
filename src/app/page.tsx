@@ -9,7 +9,8 @@ import { BookOpenCheck, BrainCircuit, Timer } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="container mx-auto p-4 md:p-8 flex-1"> {/* Ensure container takes available space */}
+    // Removed mx-auto and padding here, rely on container in layout.tsx for consistency
+    <div className="flex-1 w-full">
       <Tabs defaultValue="tasks" className="w-full flex flex-col"> {/* Make Tabs a flex container */}
         {/* Adjusted grid columns for better responsiveness */}
         <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 mb-6 gap-2">
@@ -27,14 +28,15 @@ export default function Home() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Ensure TabsContent takes up remaining space if needed, added padding */}
-        <TabsContent value="tasks" className="flex-1 py-4 md:py-8">
+        {/* Add margin-top to TabsContent to ensure space below TabsList */}
+        {/* Ensure content takes remaining space and applies padding */}
+        <TabsContent value="tasks" className="flex-1 mt-6 p-0 md:p-4">
           <TaskList />
         </TabsContent>
-        <TabsContent value="pomodoro" className="flex-1 py-4 md:py-8">
+        <TabsContent value="pomodoro" className="flex-1 mt-6 p-0 md:p-4">
           <PomodoroTimer />
         </TabsContent>
-        <TabsContent value="ai-planner" className="flex-1 py-4 md:py-8">
+        <TabsContent value="ai-planner" className="flex-1 mt-6 p-0 md:p-4">
           <AiPlanner />
         </TabsContent>
       </Tabs>
