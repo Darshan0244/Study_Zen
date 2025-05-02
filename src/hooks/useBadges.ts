@@ -122,11 +122,11 @@ export function useBadges() {
         toast({
           title: "Badge Earned!",
           description: `You've earned the "${badge.name}" badge! Check the Badges tab.`,
-           // Updated: Use accent color styling similar to suggestion alerts
-           className: "bg-accent/10 dark:bg-accent/20 border border-accent/40 text-accent-foreground",
+           // Use orange background and white text for better visibility in dark mode
+           className: "bg-orange text-white border-orange", // Use theme orange, white text, and orange border
            duration: 6000, // Show longer
            // Optional: Add an icon using the action prop if desired
-           // action: <Award className="h-5 w-5 text-accent" />,
+           // action: <Award className="h-5 w-5 text-white" />, // Ensure icon color is also contrasting
         });
       }
     });
