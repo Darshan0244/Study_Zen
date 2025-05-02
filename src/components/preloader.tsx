@@ -62,8 +62,8 @@ export function Preloader() {
             // Replace the existing GIF URL with the new one
             src="https://ugokawaii.com/wp-content/uploads/2022/06/writing-rabbit.gif"
             alt="Writing Rabbit Loading Animation" // Updated alt text
-            width={100} // Specify width
-            height={100} // Specify height
+            width={150} // Increased width
+            height={150} // Increased height
             className="mb-4" // Add some margin below the GIF
             unoptimized // GIFs often work better unoptimized with next/image
             data-ai-hint="writing rabbit loading animation" // Updated AI Hint for the image
