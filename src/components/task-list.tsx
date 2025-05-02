@@ -1,3 +1,4 @@
+// src/components/task-list.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -39,27 +40,23 @@ interface Task {
   completed: boolean;
 }
 
-const initialTasks: Task[] = [
-  { id: '1', taskName: 'Read Chapter 3 - History of Ancient Civilizations and their impact on modern society', deadline: new Date(2024, 6, 25), subject: 'History', priority: 'High', completed: false },
-  { id: '2', taskName: 'Complete Math Assignment - Calculus problems involving derivatives and integrals', deadline: new Date(2024, 6, 27), subject: 'Math', priority: 'Medium', completed: false },
-  { id: '3', taskName: 'Practice French Verbs - Conjugate irregular verbs in present and past tense', deadline: null, subject: 'French', priority: 'Low', completed: true },
-  { id: '4', taskName: 'Write Biology Lab Report - Experiment on plant photosynthesis rates', deadline: new Date(2024, 7, 5), subject: 'Biology', priority: 'High', completed: false },
-  { id: '5', taskName: 'Study for Physics Quiz - Chapters on kinematics and dynamics', deadline: new Date(2024, 7, 1), subject: 'Physics', priority: 'Medium', completed: false },
-  { id: '6', taskName: 'Prepare Literature Presentation - Analysis of themes in "To Kill a Mockingbird"', deadline: new Date(2024, 7, 8), subject: 'Literature', priority: 'Low', completed: false },
-];
+// Remove the initialTasks array
+// const initialTasks: Task[] = [ ... ];
 
 
 export function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]); // Initialize with empty array
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskSubject, setNewTaskSubject] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<Priority>('Medium');
   const [newTaskDeadline, setNewTaskDeadline] = useState<Date | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false); // Track client mount
 
   // Load tasks from local storage on mount
   useEffect(() => {
+     setIsClient(true); // Now we are on the client
     const storedTasks = localStorage.getItem('studyZenTasks');
     if (storedTasks) {
       try {
@@ -67,29 +64,25 @@ export function TaskList() {
            ...task,
            deadline: task.deadline ? new Date(task.deadline) : null,
          }));
-         setTasks(parsedTasks.length > 0 ? parsedTasks : initialTasks); // Use initial if storage is empty array
+         // Set tasks from storage if valid, otherwise keep empty
+         setTasks(Array.isArray(parsedTasks) ? parsedTasks : []);
        } catch (error) {
          console.error("Failed to parse tasks from local storage:", error);
-         setTasks(initialTasks); // Fallback to initial tasks if parsing fails
-         localStorage.setItem('studyZenTasks', JSON.stringify(initialTasks));
+         setTasks([]); // Fallback to empty array if parsing fails
+         localStorage.removeItem('studyZenTasks'); // Optional: remove invalid data
        }
     } else {
-      setTasks(initialTasks);
-      localStorage.setItem('studyZenTasks', JSON.stringify(initialTasks));
+        setTasks([]); // Initialize with empty array if nothing in storage
     }
   }, []);
 
   // Save tasks to local storage whenever tasks change
   useEffect(() => {
-    // Only save if tasks array is not the initial default (or differs)
-    // This prevents overwriting potentially empty storage with defaults immediately
-    if (typeof window !== 'undefined') { // Ensure localStorage is available
-        const currentStoredTasks = localStorage.getItem('studyZenTasks');
-        if (JSON.stringify(tasks) !== currentStoredTasks) {
-            localStorage.setItem('studyZenTasks', JSON.stringify(tasks));
-        }
+    // Only save on the client side after the initial load
+    if (isClient) {
+        localStorage.setItem('studyZenTasks', JSON.stringify(tasks));
     }
-  }, [tasks]);
+  }, [tasks, isClient]);
 
 
   const addTask = () => {
@@ -179,7 +172,7 @@ export function TaskList() {
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
       case 'High':
-        return 'border-l-destructive';
+        return 'border-l-destructive'; // Red
       case 'Medium':
         return 'border-l-orange-500'; // Use direct orange
       case 'Low':
@@ -194,7 +187,7 @@ export function TaskList() {
     <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-primary">My Tasks</CardTitle>
-        <CardDescription>Manage your assignments and study goals. Scroll down to see all tasks.</CardDescription>
+        <CardDescription>Manage your assignments and study goals. Add tasks using the form below.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6"> {/* Increased spacing */}
         {/* Add Task Form */}
@@ -290,13 +283,13 @@ export function TaskList() {
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0 justify-end w-full sm:w-auto"> {/* Justify end on small screens */}
-                   <Dialog>
+                   <Dialog open={editingTask?.id === task.id} onOpenChange={(isOpen) => !isOpen && cancelEdit()}>
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="icon" onClick={() => startEditing(task)} aria-label={`Edit task ${task.taskName}`}>
                           <Edit className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
-                      {editingTask && editingTask.id === task.id && (
+                      {editingTask && editingTask.id === task.id && ( // Conditionally render content only when needed
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>Edit Task</DialogTitle>
@@ -306,19 +299,19 @@ export function TaskList() {
                               <Label htmlFor="edit-name" className="text-right">
                                 Task Name
                               </Label>
-                              <Input id="edit-name" value={editingTask.taskName} onChange={(e) => setEditingTask({...editingTask, taskName: e.target.value})} className="col-span-3" />
+                              <Input id="edit-name" value={editingTask.taskName} onChange={(e) => setEditingTask({...editingTask!, taskName: e.target.value})} className="col-span-3" />
                             </div>
                              <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="edit-subject" className="text-right">
                                 Subject
                               </Label>
-                              <Input id="edit-subject" value={editingTask.subject} onChange={(e) => setEditingTask({...editingTask, subject: e.target.value})} className="col-span-3" />
+                              <Input id="edit-subject" value={editingTask.subject} onChange={(e) => setEditingTask({...editingTask!, subject: e.target.value})} className="col-span-3" />
                              </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="edit-priority" className="text-right">
                                 Priority
                               </Label>
-                              <Select value={editingTask.priority} onValueChange={(value: string) => setEditingTask({...editingTask, priority: value as Priority})}>
+                              <Select value={editingTask.priority} onValueChange={(value: string) => setEditingTask({...editingTask!, priority: value as Priority})}>
                                 <SelectTrigger id="edit-priority" className="col-span-3">
                                   <SelectValue placeholder="Priority" />
                                 </SelectTrigger>
@@ -362,6 +355,7 @@ export function TaskList() {
                             <DialogClose asChild>
                                <Button variant="outline" onClick={cancelEdit}>Cancel</Button>
                             </DialogClose>
+                             {/* Updated to handle DialogClose properly */}
                             <Button onClick={saveEdit}>Save Changes</Button>
                           </DialogFooter>
                         </DialogContent>
@@ -378,7 +372,7 @@ export function TaskList() {
         </div>
       </CardContent>
       <CardFooter className="text-sm text-muted-foreground mt-6"> {/* Added margin-top */}
-         {tasks.filter(task => !task.completed).length} tasks remaining.
+         {tasks.filter(task => !task.completed).length} task{tasks.filter(task => !task.completed).length !== 1 ? 's' : ''} remaining.
       </CardFooter>
     </Card>
   );

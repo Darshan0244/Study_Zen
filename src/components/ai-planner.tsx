@@ -42,11 +42,13 @@ export function AiPlanner() {
            ...task,
            deadline: task.deadline ? new Date(task.deadline) : null,
          }));
-         setTasks(parsedTasks);
+         // Set tasks from storage if valid, otherwise keep empty
+         setTasks(Array.isArray(parsedTasks) ? parsedTasks : []);
        } catch (error) {
          console.error("Failed to parse tasks for AI Planner:", error);
          // Handle error, maybe show a toast or use default empty tasks
           setTasks([]); // Set to empty array on error
+          // Optionally remove invalid data: localStorage.removeItem('studyZenTasks');
        }
      } else {
         setTasks([]); // Set to empty if nothing in storage
