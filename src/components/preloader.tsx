@@ -68,15 +68,16 @@ export function Preloader() {
             unoptimized // GIFs often work better unoptimized with next/image
             data-ai-hint="writing rabbit loading animation" // Updated AI Hint for the image
           />
+           {/* Add the tagline - Moved above h1 */}
+           <p className="text-lg sm:text-xl font-bold font-mono text-foreground mb-2 animate-text-glow"> {/* Changed mb-4 to mb-2, removed animate-blink, added animate-text-glow */}
+             Plan Smarter, Learn Better.
+           </p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 animate-pulse">
             StudyZen
           </h1>
-          {/* Add the tagline */}
-          <p className="text-lg sm:text-xl font-bold font-mono text-foreground mb-4 animate-blink">
-            Plan Smarter, Learn Better.
-          </p>
+
           {/* Original Loader Effect */}
-          <div className="flex items-center justify-center space-x-2">
+          <div className="flex items-center justify-center space-x-2 mt-2"> {/* Added mt-2 */}
             <div className="w-4 h-4 rounded-full animate-pulse-dot bg-primary delay-0"></div>
             <div className="w-4 h-4 rounded-full animate-pulse-dot bg-primary delay-150"></div>
             <div className="w-4 h-4 rounded-full animate-pulse-dot bg-primary delay-300"></div>

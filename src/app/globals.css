@@ -226,12 +226,34 @@ body {
       filter: brightness(1.2); /* Slightly brighter */
    }
 
-   /* Simple Blink Animation */
-   @keyframes blink {
+   /* Simple Blink Animation (Removed as we use text-glow now) */
+   /* @keyframes blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
    }
    .animate-blink {
-      animation: blink 1.5s infinite step-end; /* step-end for a sharper blink */
+      animation: blink 1.5s infinite step-end;
+   } */
+
+   /* Advanced Text Glow Animation */
+   @keyframes text-glow {
+    0%, 100% {
+        /* Use a more vibrant foreground color for the glow, adjust alpha for intensity */
+        text-shadow: 0 0 5px hsl(var(--foreground) / 0.6),
+                     0 0 10px hsl(var(--foreground) / 0.4),
+                     0 0 15px hsl(var(--foreground) / 0.2);
+        color: hsl(var(--foreground)); /* Ensure base text color */
+    }
+    50% {
+        /* Slightly reduced glow effect */
+        text-shadow: 0 0 8px hsl(var(--foreground) / 0.8),
+                     0 0 15px hsl(var(--foreground) / 0.5),
+                     0 0 20px hsl(var(--foreground) / 0.3);
+         /* Optionally make text brighter at peak */
+         color: hsl(var(--foreground) / 1.2); /* Slight brightness increase */
+    }
+   }
+   .animate-text-glow {
+     animation: text-glow 2.5s infinite ease-in-out alternate; /* Use alternate direction for smoother pulse */
    }
 }
