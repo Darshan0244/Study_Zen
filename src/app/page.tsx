@@ -30,13 +30,14 @@ export default function Home() {
 
         {/* Add margin-top to TabsContent to ensure space below TabsList */}
         {/* Ensure content takes remaining space and applies padding */}
-        <TabsContent value="tasks" className="flex-1 mt-6 p-0 md:p-4">
+        {/* Increased mt-6 to mt-8 for more vertical separation */}
+        <TabsContent value="tasks" className="flex-1 mt-8 p-0 md:p-4">
           <TaskList />
         </TabsContent>
-        <TabsContent value="pomodoro" className="flex-1 mt-6 p-0 md:p-4">
+        <TabsContent value="pomodoro" className="flex-1 mt-8 p-0 md:p-4">
           <PomodoroTimer />
         </TabsContent>
-        <TabsContent value="ai-planner" className="flex-1 mt-6 p-0 md:p-4">
+        <TabsContent value="ai-planner" className="flex-1 mt-8 p-0 md:p-4">
           <AiPlanner />
         </TabsContent>
       </Tabs>
