@@ -186,4 +186,30 @@ body {
   .delay-0 { animation-delay: 0s; }
   .delay-150 { animation-delay: 0.15s; }
   .delay-300 { animation-delay: 0.3s; }
+
+  /* Twinkling Star Animation */
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  .twinkle {
+    animation-name: twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: hsl(var(--primary)); /* Use primary color or a specific star color */
+    border-radius: 50%;
+    box-shadow: 0 0 5px 1px hsl(var(--primary) / 0.5); /* Optional glow */
+  }
+
+  /* Add a slightly larger star variation */
+   .star.large {
+      width: 3px;
+      height: 3px;
+   }
 }
