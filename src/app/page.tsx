@@ -14,7 +14,7 @@ export default function Home() {
     // Removed mx-auto and padding here, rely on container in layout.tsx for consistency
     <div className="flex-1 w-full">
        {/* Use grid with more columns to accommodate new tabs */}
-      <Tabs defaultValue="tasks" className="w-full flex flex-col">
+      <Tabs defaultValue="tasks" className="w-full flex flex-col h-full"> {/* Ensure Tabs fills height */}
          {/* Update grid columns for 5 tabs, adjust gaps */}
         <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 mb-6 gap-1 sm:gap-2">
            <TabsTrigger value="tasks" className="flex items-center justify-center gap-1 sm:gap-2 py-2 px-1 sm:px-3 text-xs sm:text-sm md:text-base">
@@ -43,23 +43,23 @@ export default function Home() {
 
         {/* Add margin-top to TabsContent */}
         {/* Ensure content takes remaining space and applies padding */}
-        {/* Increased mt-6 to mt-8 */}
-        {/* Added mt-4 for smaller screens */}
-        <TabsContent value="tasks" className="flex-1 mt-4 md:mt-8 p-0 md:p-4">
+        {/* Consistent margin-top for all tabs */}
+        {/* Removed flex-1 from TabsContent, let child components handle layout */}
+        <TabsContent value="tasks" className="mt-6 p-0 md:p-4">
           <TaskList />
         </TabsContent>
-        <TabsContent value="pomodoro" className="flex-1 mt-4 md:mt-8 p-0 md:p-4">
+        <TabsContent value="pomodoro" className="mt-6 p-0 md:p-4">
           <PomodoroTimer />
         </TabsContent>
-        <TabsContent value="ai-planner" className="flex-1 mt-4 md:mt-8 p-0 md:p-4">
+        <TabsContent value="ai-planner" className="mt-6 p-0 md:p-4">
           <AiPlanner />
         </TabsContent>
          {/* New Content Area for Insights */}
-         <TabsContent value="insights" className="flex-1 mt-4 md:mt-8 p-0 md:p-4">
+         <TabsContent value="insights" className="mt-6 p-0 md:p-4">
            <FeedbackDisplay />
          </TabsContent>
          {/* New Content Area for Achievements */}
-         <TabsContent value="achievements" className="flex-1 mt-4 md:mt-8 p-0 md:p-4">
+         <TabsContent value="achievements" className="mt-6 p-0 md:p-4">
            <BadgeDisplay />
          </TabsContent>
       </Tabs>

@@ -24,20 +24,15 @@ const EARNED_BADGES_KEY = 'studyZenEarnedBadges';
 
 export function useBadges() {
   const [earnedBadges, setEarnedBadges] = useState<Set<string>>(new Set()); // Store IDs of earned badges
-  const [badgeProgress, setBadgeProgress] = useState<BadgeProgress>({
-    tasksCompleted: 0,
-    pomodoroSessionsCompleted: 0,
-    studyDaysStreak: 0,
-    tasksCompletedToday: 0,
-    pomodorosCompletedToday: 0,
-    aiPlanGeneratedCount: 0,
-  });
+  const [badgeProgress, setBadgeProgress] = useState<BadgeProgress | null>(null); // Initialize as null
   const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const { toast } = useToast();
 
   // Load state from local storage on mount
   useEffect(() => {
     setIsClient(true);
+    setIsLoading(true); // Start loading
     const storedProgress = localStorage.getItem(BADGE_PROGRESS_KEY);
     const storedEarnedBadges = localStorage.getItem(EARNED_BADGES_KEY);
 
@@ -67,7 +62,7 @@ export function useBadges() {
     if (initialProgress.lastActivityDate !== today) {
       initialProgress.tasksCompletedToday = 0;
       initialProgress.pomodorosCompletedToday = 0;
-      // Streak logic could be more complex, this is basic
+      // Basic streak reset (can be made more robust)
       // const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
       // if (initialProgress.lastActivityDate !== yesterday) {
       //     initialProgress.studyDaysStreak = 0; // Reset streak if not yesterday
@@ -75,8 +70,7 @@ export function useBadges() {
     }
      initialProgress.lastActivityDate = today; // Update activity date
 
-
-    setBadgeProgress(initialProgress);
+    setBadgeProgress(initialProgress); // Set the loaded or default progress
 
 
     if (storedEarnedBadges) {
@@ -95,28 +89,26 @@ export function useBadges() {
     } else {
          setEarnedBadges(new Set()); // Initialize empty if nothing in storage
     }
+    setIsLoading(false); // Finish loading
   }, []);
 
   // Save state to local storage whenever it changes
   useEffect(() => {
-    if (isClient) {
+    // Only save if not loading and progress is not null
+    if (isClient && !isLoading && badgeProgress) {
       localStorage.setItem(BADGE_PROGRESS_KEY, JSON.stringify(badgeProgress));
       localStorage.setItem(EARNED_BADGES_KEY, JSON.stringify(Array.from(earnedBadges)));
     }
-  }, [badgeProgress, earnedBadges, isClient]);
+  }, [badgeProgress, earnedBadges, isClient, isLoading]);
 
   // Function to check and award badges
   const checkAndAwardBadges = useCallback(() => {
-    if (!isClient) return;
+    // Ensure progress is loaded and we are on the client
+    if (!isClient || isLoading || !badgeProgress) return;
 
     const criteriaData: BadgeCriteriaData = {
       ...badgeProgress,
-      // Ensure daily counts are included
-      tasksCompletedToday: badgeProgress.tasksCompletedToday,
-      pomodorosCompletedToday: badgeProgress.pomodorosCompletedToday,
-      // Include streak and AI plan count
-      studyDaysStreak: badgeProgress.studyDaysStreak,
-      aiPlanGeneratedCount: badgeProgress.aiPlanGeneratedCount,
+      // Ensure daily counts are included (already part of badgeProgress)
     };
 
     let newlyEarned = false;
@@ -132,6 +124,8 @@ export function useBadges() {
           description: `You've earned the "${badge.name}" badge! Check the Badges tab.`,
            className: "bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700", // Custom style for success
            duration: 6000, // Show longer
+           // You could add an icon here too:
+           // action: <Award className="h-5 w-5 text-yellow-500" />, // Example icon
         });
       }
     });
@@ -139,7 +133,7 @@ export function useBadges() {
     if (newlyEarned) {
       setEarnedBadges(updatedEarnedBadges);
     }
-  }, [badgeProgress, earnedBadges, toast, isClient]);
+  }, [badgeProgress, earnedBadges, toast, isClient, isLoading]);
 
   // Call checkAndAwardBadges whenever progress changes
   useEffect(() => {
@@ -149,39 +143,54 @@ export function useBadges() {
 
   // Function to increment task count
   const incrementTasksCompleted = useCallback(() => {
-    setBadgeProgress((prev) => ({
-      ...prev,
-      tasksCompleted: prev.tasksCompleted + 1,
-      tasksCompletedToday: prev.tasksCompletedToday + 1,
-       // Reset daily counts if date changed (handled in initial load too, but good to double-check)
-       lastActivityDate: new Date().toISOString().split('T')[0],
-       // TODO: Implement streak logic here if needed
-       // studyDaysStreak: calculateStreak(prev.studyDaysStreak, prev.lastActivityDate),
-    }));
-  }, []);
+    if (!isClient) return;
+    setBadgeProgress((prev) => {
+        if (!prev) return null; // Should not happen if called after load, but safeguard
+        const today = new Date().toISOString().split('T')[0];
+        const isNewDay = prev.lastActivityDate !== today;
+        return {
+          ...prev,
+          tasksCompleted: prev.tasksCompleted + 1,
+          tasksCompletedToday: isNewDay ? 1 : prev.tasksCompletedToday + 1,
+          lastActivityDate: today, // Update last activity date
+           // TODO: Implement streak logic here if needed
+           // studyDaysStreak: calculateStreak(prev.studyDaysStreak, prev.lastActivityDate),
+        };
+    });
+  }, [isClient]);
 
   // Function to increment Pomodoro count
   const incrementPomodoroSessions = useCallback(() => {
-    setBadgeProgress((prev) => ({
-      ...prev,
-      pomodoroSessionsCompleted: prev.pomodoroSessionsCompleted + 1,
-       pomodorosCompletedToday: prev.pomodorosCompletedToday + 1,
-       // Reset daily counts if date changed
-       lastActivityDate: new Date().toISOString().split('T')[0],
-       // TODO: Implement streak logic here if needed
-       // studyDaysStreak: calculateStreak(prev.studyDaysStreak, prev.lastActivityDate),
-    }));
-  }, []);
+     if (!isClient) return;
+    setBadgeProgress((prev) => {
+        if (!prev) return null;
+         const today = new Date().toISOString().split('T')[0];
+         const isNewDay = prev.lastActivityDate !== today;
+        return {
+          ...prev,
+          pomodoroSessionsCompleted: prev.pomodoroSessionsCompleted + 1,
+          pomodorosCompletedToday: isNewDay ? 1 : prev.pomodorosCompletedToday + 1,
+          lastActivityDate: today, // Update last activity date
+           // TODO: Implement streak logic here if needed
+           // studyDaysStreak: calculateStreak(prev.studyDaysStreak, prev.lastActivityDate),
+        };
+    });
+  }, [isClient]);
 
   // Function to increment AI plan generation count
    const incrementAiPlanGeneratedCount = useCallback(() => {
-       setBadgeProgress((prev) => ({
-           ...prev,
-           aiPlanGeneratedCount: prev.aiPlanGeneratedCount + 1,
-           lastActivityDate: new Date().toISOString().split('T')[0], // Update last activity date
-           // TODO: Streak logic update if needed
-       }));
-   }, []);
+       if (!isClient) return;
+       setBadgeProgress((prev) => {
+           if (!prev) return null;
+            const today = new Date().toISOString().split('T')[0];
+           return {
+               ...prev,
+               aiPlanGeneratedCount: prev.aiPlanGeneratedCount + 1,
+               lastActivityDate: today, // Update last activity date
+               // TODO: Streak logic update if needed
+           };
+       });
+   }, [isClient]);
 
 
   // Map earned badge IDs to badge objects
@@ -192,7 +201,8 @@ export function useBadges() {
   return {
     earnedBadges: earnedBadgeDetails, // Return full badge objects
     unearnedBadges: unearnedBadgeDetails,
-    badgeProgress,
+    badgeProgress, // Can be null initially
+    isLoading, // Export loading state
     incrementTasksCompleted,
     incrementPomodoroSessions,
     incrementAiPlanGeneratedCount, // Expose the new increment function
