@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
         hostname: 'media4.giphy.com',
         port: '',
         pathname: '/**',
+      },
+      { // Add Gifer hostname
+        protocol: 'https',
+        hostname: 'i.gifer.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

@@ -59,16 +59,14 @@ export function Preloader() {
       <div className="relative z-10 flex flex-col items-center"> {/* Ensure text is above stars */}
           {/* Add the GIF using next/image */}
           <Image
-            // This is an external URL, ensure it's allowed in next.config.js if needed
-            // For external URLs, optimization might be limited compared to local images.
-            // Using 'unoptimized' might be necessary if you encounter issues.
-            src="https://media1.giphy.com/media/CGdcqv9IQ257q3TOUk/giphy.gif?cid=6c09b952oe5orvno1xegsnoay9q3syolo3y03orjhvhrvwf3&ep=v1_gifs_search&rid=giphy.gif&ct=g"
-            alt="Loading Animation"
+            // Replace the existing GIF URL with the new one
+            src="https://i.gifer.com/XHXn.gif"
+            alt="Book and Pencil Loading Animation" // Updated alt text
             width={100} // Specify width
             height={100} // Specify height
             className="mb-4" // Add some margin below the GIF
             unoptimized // GIFs often work better unoptimized with next/image
-            data-ai-hint="zen meditating frog animation" // AI Hint for the image
+            data-ai-hint="book pencil loading animation" // Updated AI Hint for the image
           />
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 animate-pulse">
             StudyZen
