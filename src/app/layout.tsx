@@ -60,7 +60,7 @@ export default function RootLayout({
               </div>
             </header>
             {/* Make main content area flexible */}
-            <main className="flex-1 w-full">{children}</main>
+            <main className="flex-1 container mx-auto w-full py-4 md:py-8">{children}</main> {/* Added container and padding */}
           </div>
           <Footer /> {/* Add Footer component */}
           <Toaster />

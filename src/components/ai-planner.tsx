@@ -1,4 +1,3 @@
-// src/components/ai-planner.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -150,19 +149,21 @@ export function AiPlanner() {
 
          {isClient && hasActiveTasks && ( // Show button only if client loaded and has tasks
              <div className="flex justify-center"> {/* Center the button */}
+                 {/* Adjusted button size for better responsiveness */}
                 <Button
                     onClick={handleGeneratePlan}
                     disabled={isLoading}
-                    size="lg" // Larger button
+                    size="default" // Use default size, which adapts better than lg
+                    className="w-full sm:w-auto" // Full width on small, auto on larger
                 >
                 {isLoading ? (
                     <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> {/* Responsive icon */}
                     Generating Plan...
                     </>
                 ) : (
                     <>
-                        <Sparkles className="mr-2 h-5 w-5" />
+                        <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> {/* Responsive icon */}
                         Generate My Study Plan
                     </>
                 )}
@@ -177,8 +178,8 @@ export function AiPlanner() {
 
              {/* Schedule Section */}
              <div>
-                <h3 className="text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2">
-                     <CalendarDays className="h-5 w-5 text-primary" /> Your Study Schedule
+                <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
+                     <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Your Study Schedule {/* Responsive icon */}
                 </h3>
                  <Card className="bg-muted/20 dark:bg-muted/30">
                      <CardContent className="p-4">
@@ -197,8 +198,8 @@ export function AiPlanner() {
              {/* Suggestions Section */}
             {studyPlan.suggestions && studyPlan.suggestions.length > 0 && !studyPlan.schedule.startsWith('**Error:**') && ( // Only show if suggestions exist and no error
               <div>
-                 <h3 className="text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2">
-                   <Lightbulb className="h-5 w-5 text-accent" /> AI Suggestions
+                 <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
+                   <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-accent" /> AI Suggestions {/* Responsive icon */}
                  </h3>
                   <Card className="bg-accent/10 dark:bg-accent/20 border-accent/30">
                     <CardContent className="p-4">
@@ -214,7 +215,7 @@ export function AiPlanner() {
           </div>
         )}
       </CardContent>
-       <CardFooter className="text-sm text-muted-foreground mt-6 flex justify-center"> {/* Center footer text */}
+       <CardFooter className="text-xs sm:text-sm text-muted-foreground mt-6 flex justify-center text-center"> {/* Responsive text size and center */}
           Plan will be based on {activeTasks.length} active task{activeTasks.length !== 1 ? 's' : ''}.
        </CardFooter>
     </Card>

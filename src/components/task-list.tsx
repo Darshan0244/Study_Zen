@@ -1,4 +1,3 @@
-// src/components/task-list.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -39,9 +38,6 @@ interface Task {
   priority: Priority;
   completed: boolean;
 }
-
-// Remove the initialTasks array
-// const initialTasks: Task[] = [ ... ];
 
 
 export function TaskList() {
@@ -174,9 +170,9 @@ export function TaskList() {
       case 'High':
         return 'border-l-destructive'; // Red
       case 'Medium':
-        return 'border-l-orange-500'; // Use direct orange
+        return 'border-l-orange'; // Use theme orange
       case 'Low':
-        return 'border-l-green-500'; // Use direct green
+        return 'border-l-green'; // Use theme green
       default:
         return 'border-l-muted';
     }
@@ -190,79 +186,81 @@ export function TaskList() {
         <CardDescription>Manage your assignments and study goals. Add tasks using the form below.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6"> {/* Increased spacing */}
-        {/* Add Task Form */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-2 mb-6 p-4 border rounded-lg bg-muted/50 items-end"> {/* Added flex-wrap and items-end */}
-          <div className="flex-grow w-full sm:w-auto mb-2 sm:mb-0">
-            <Label htmlFor="new-task-name" className="sr-only">New Task Name</Label>
-            <Input
-              id="new-task-name"
-              type="text"
-              placeholder="New Task Name"
-              value={newTaskName}
-              onChange={(e) => setNewTaskName(e.target.value)}
-              className="w-full"
-              aria-label="New Task Name"
-            />
-          </div>
-          <div className="w-full sm:w-auto sm:max-w-[150px] mb-2 sm:mb-0"> {/* Max width for subject */}
-            <Label htmlFor="new-task-subject" className="sr-only">Subject</Label>
-            <Input
-              id="new-task-subject"
-              type="text"
-              placeholder="Subject"
-              value={newTaskSubject}
-              onChange={(e) => setNewTaskSubject(e.target.value)}
-              className="w-full"
-              aria-label="New Task Subject"
-            />
-          </div>
-          <div className="w-full sm:w-auto mb-2 sm:mb-0"> {/* Width auto for select */}
-             <Label htmlFor="new-task-priority" className="sr-only">Priority</Label>
-            <Select value={newTaskPriority} onValueChange={(value: string) => setNewTaskPriority(value as Priority)}>
-              <SelectTrigger id="new-task-priority" className="w-full sm:w-[130px]" aria-label="New Task Priority">
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="High">High</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="Low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-           <div className="w-full sm:w-auto mb-2 sm:mb-0"> {/* Width auto for date picker */}
-             <Label htmlFor="new-task-deadline" className="sr-only">Deadline</Label>
+        {/* Add Task Form - Using Grid for better wrapping control */}
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6 p-4 border rounded-lg bg-muted/50 items-end">
+           <div className="sm:col-span-2 lg:col-span-1"> {/* Task Name */}
+             <Label htmlFor="new-task-name">Task Name</Label>
+             <Input
+               id="new-task-name"
+               type="text"
+               placeholder="New Task Name"
+               value={newTaskName}
+               onChange={(e) => setNewTaskName(e.target.value)}
+               className="w-full"
+               aria-label="New Task Name"
+             />
+           </div>
+           <div> {/* Subject */}
+             <Label htmlFor="new-task-subject">Subject</Label>
+             <Input
+               id="new-task-subject"
+               type="text"
+               placeholder="Subject"
+               value={newTaskSubject}
+               onChange={(e) => setNewTaskSubject(e.target.value)}
+               className="w-full"
+               aria-label="New Task Subject"
+             />
+           </div>
+           <div> {/* Priority */}
+             <Label htmlFor="new-task-priority">Priority</Label>
+             <Select value={newTaskPriority} onValueChange={(value: string) => setNewTaskPriority(value as Priority)}>
+               <SelectTrigger id="new-task-priority" className="w-full" aria-label="New Task Priority">
+                 <SelectValue placeholder="Priority" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="High">High</SelectItem>
+                 <SelectItem value="Medium">Medium</SelectItem>
+                 <SelectItem value="Low">Low</SelectItem>
+               </SelectContent>
+             </Select>
+           </div>
+           <div> {/* Deadline */}
+             <Label htmlFor="new-task-deadline">Deadline</Label>
              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="new-task-deadline"
-                    variant={"outline"}
-                    className={cn(
-                      "w-full sm:w-[180px] justify-start text-left font-normal",
-                      !newTaskDeadline && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIconLucide className="mr-2 h-4 w-4" /> {/* Use renamed import */}
-                    {newTaskDeadline ? format(newTaskDeadline, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={newTaskDeadline ?? undefined}
-                    onSelect={(date) => setNewTaskDeadline(date || null)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          <Button onClick={addTask} aria-label="Add New Task" className="w-full sm:w-auto"> {/* Button takes full width on small screens */}
-            <Plus className="h-4 w-4 mr-1" /> Add Task
-          </Button>
-        </div>
+                 <PopoverTrigger asChild>
+                   <Button
+                     id="new-task-deadline"
+                     variant={"outline"}
+                     className={cn(
+                       "w-full justify-start text-left font-normal",
+                       !newTaskDeadline && "text-muted-foreground"
+                     )}
+                   >
+                     <CalendarIconLucide className="mr-2 h-4 w-4" />
+                     {newTaskDeadline ? format(newTaskDeadline, "PPP") : <span>Pick a date</span>}
+                   </Button>
+                 </PopoverTrigger>
+                 <PopoverContent className="w-auto p-0">
+                   <Calendar
+                     mode="single"
+                     selected={newTaskDeadline ?? undefined}
+                     onSelect={(date) => setNewTaskDeadline(date || null)}
+                     initialFocus
+                   />
+                 </PopoverContent>
+               </Popover>
+             </div>
+           <div className="sm:col-span-2 lg:col-span-1 flex items-end"> {/* Add Button - Adjust span for alignment */}
+             <Button onClick={addTask} aria-label="Add New Task" className="w-full">
+               <Plus className="h-4 w-4 mr-1" /> Add Task
+             </Button>
+           </div>
+         </div>
 
         {/* Task List */}
         <div className="space-y-4"> {/* Increased spacing between tasks */}
-          {tasks.length === 0 ? (
+          {tasks.length === 0 && isClient ? ( // Only show 'No tasks' after client has loaded
              <p className="text-center text-muted-foreground py-8">No tasks yet. Add one above to get started!</p> /* Increased padding */
           ) : (
              tasks.map((task) => (
@@ -368,7 +366,10 @@ export function TaskList() {
               </Card>
              ))
            )}
-
+          {/* Loading state indicator if needed */}
+          {!isClient && (
+               <div className="text-center text-muted-foreground py-8">Loading tasks...</div>
+           )}
         </div>
       </CardContent>
       <CardFooter className="text-sm text-muted-foreground mt-6"> {/* Added margin-top */}

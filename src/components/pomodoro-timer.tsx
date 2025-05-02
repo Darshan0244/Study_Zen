@@ -53,13 +53,33 @@ export function PomodoroTimer() {
 
      // Preload audio only on the client
      if (typeof window !== "undefined") {
-       audioRef.current = new Audio('/sounds/timer-end.mp3'); // Ensure you have this sound file in public/sounds
-        if (audioRef.current) {
-            audioRef.current.load();
-         }
+       // Preload audio and request notification permission lazily if needed
+       // audioRef.current = new Audio('/sounds/timer-end.mp3');
+       // if (audioRef.current) {
+       //   audioRef.current.load();
+       // }
      }
 
    }, []);
+
+
+   // Preload audio and request permission only when timer actually starts or switches
+   const ensureAudioAndPermissions = useCallback(() => {
+      if (!isClient) return;
+
+       if (!audioRef.current && typeof window !== "undefined") {
+           audioRef.current = new Audio('/sounds/timer-end.mp3'); // Ensure you have this sound file in public/sounds
+           if (audioRef.current) {
+               audioRef.current.load();
+           }
+       }
+
+       if ('Notification' in window && Notification.permission === 'default') {
+           Notification.requestPermission();
+       }
+
+   }, [isClient]);
+
 
    // Save settings and session count to local storage
    const saveSettings = () => {
@@ -92,6 +112,8 @@ export function PomodoroTimer() {
     let notificationTitle = "";
     let notificationDescription = "";
     let newSessionsCompleted = sessionsCompleted;
+
+    ensureAudioAndPermissions(); // Ensure audio/perms are ready
 
 
     if (mode === 'work') {
@@ -134,7 +156,7 @@ export function PomodoroTimer() {
        });
      }
 
-  }, [mode, sessionsCompleted, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient]); // Added isClient dependency
+  }, [mode, sessionsCompleted, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient, ensureAudioAndPermissions]); // Added isClient dependency
 
 
   useEffect(() => {
@@ -170,6 +192,8 @@ export function PomodoroTimer() {
   const toggleTimer = () => {
       if (!isClient) return; // Guard against server-side interaction
 
+       ensureAudioAndPermissions(); // Make sure audio/perms are ready
+
       // Prevent starting if timeLeft is null or 0
        if (!isActive && (timeLeft === null || timeLeft <= 0)) {
            resetTimer(); // Optionally reset if trying to start at 0
@@ -177,9 +201,6 @@ export function PomodoroTimer() {
        }
 
     setIsActive(!isActive);
-     if (!isActive && timeLeft !== null && timeLeft > 0 && 'Notification' in window) {
-       Notification.requestPermission(); // Request permission when starting
-     }
   };
 
   const resetTimer = () => {
@@ -271,20 +292,18 @@ export function PomodoroTimer() {
             {formatTime(timeLeft)}
           </div>
         </div>
-        {/* Optional: Add progress bar back if needed */}
-        {/* <Progress value={progressPercentage()} className="w-full h-2 mt-4" /> */}
         <div className="flex flex-wrap justify-center gap-3 sm:gap-4"> {/* Added flex-wrap and adjusted gap */}
-          <Button onClick={toggleTimer} size="lg" className="min-w-[120px]" aria-label={isActive ? 'Pause Timer' : 'Start Timer'}>
-            {isActive ? <Pause className="h-6 w-6 mr-1" /> : <Play className="h-6 w-6 mr-1" />}
+          <Button onClick={toggleTimer} size="lg" className="min-w-[100px] sm:min-w-[120px]" aria-label={isActive ? 'Pause Timer' : 'Start Timer'}> {/* Responsive min-width */}
+            {isActive ? <Pause className="h-5 w-5 sm:h-6 sm:w-6 mr-1" /> : <Play className="h-5 w-5 sm:h-6 sm:w-6 mr-1" />} {/* Responsive icons */}
             {isActive ? 'Pause' : 'Start'}
           </Button>
           <Button onClick={resetTimer} variant="outline" size="lg" aria-label="Reset Timer">
-            <RotateCcw className="h-5 w-5" />
+            <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" /> {/* Responsive icons */}
           </Button>
            <Dialog>
              <DialogTrigger asChild>
                 <Button variant="outline" size="lg" aria-label="Timer Settings">
-                    <Settings className="h-5 w-5" />
+                    <Settings className="h-4 w-4 sm:h-5 sm:w-5" /> {/* Responsive icons */}
                 </Button>
              </DialogTrigger>
              <DialogContent>
@@ -309,8 +328,10 @@ export function PomodoroTimer() {
                     <DialogClose asChild>
                        <Button variant="outline">Cancel</Button>
                     </DialogClose>
-                    {/* Removed DialogClose wrapper around save button to prevent premature closing if save fails */}
-                    <Button onClick={() => { saveSettings(); /* Optionally close here if save is guaranteed */ }}>Save Settings</Button>
+                    {/* Correctly handle DialogClose: Wrap the saving button with DialogClose */}
+                    <DialogClose asChild>
+                      <Button onClick={saveSettings}>Save Settings</Button>
+                    </DialogClose>
                </DialogFooter>
              </DialogContent>
            </Dialog>
