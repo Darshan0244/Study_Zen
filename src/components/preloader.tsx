@@ -4,20 +4,23 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-const NUM_STARS = 50; // Number of stars to generate
+const NUM_STARS = 60; // Increased number of stars for a denser field
+const LARGE_STAR_PROBABILITY = 0.2; // 20% chance for a star to be large
 
 export function Preloader() {
-  const [stars, setStars] = useState<{ top: string; left: string; delay: string; duration: string }[]>([]);
+  const [stars, setStars] = useState<{ top: string; left: string; size: 'small' | 'large'; delay: string; duration: string }[]>([]);
 
   useEffect(() => {
     const generatedStars = [];
     for (let i = 0; i < NUM_STARS; i++) {
+      const isLarge = Math.random() < LARGE_STAR_PROBABILITY;
       generatedStars.push({
         top: `${Math.random() * 100}%`,
         left: `${Math.random() * 100}%`,
-        // Random animation delay and duration for more natural twinkling
-        delay: `${Math.random() * 5}s`,
-        duration: `${Math.random() * 1.5 + 0.5}s`, // Duration between 0.5s and 2s
+        size: isLarge ? 'large' : 'small',
+        // More variation in animation delay and duration
+        delay: `${Math.random() * 8}s`, // Wider range of delays (0s to 8s)
+        duration: `${Math.random() * 2.5 + 1}s`, // Duration between 1s and 3.5s
       });
     }
     setStars(generatedStars);
@@ -35,8 +38,12 @@ export function Preloader() {
         {stars.map((star, index) => (
           <div
             key={index}
-            // Apply star and twinkle classes. Use star styling from globals.css
-            className="star twinkle"
+            // Apply star, twinkle, and size classes. Use star styling from globals.css
+            className={cn(
+                'star',
+                'twinkle',
+                { 'large': star.size === 'large' } // Apply 'large' class if star.size is 'large'
+             )}
             style={{
               top: star.top,
               left: star.left,

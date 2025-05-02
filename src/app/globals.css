@@ -187,36 +187,42 @@ body {
   .delay-150 { animation-delay: 0.15s; }
   .delay-300 { animation-delay: 0.3s; }
 
-  /* Twinkling Star Animation */
+  /* Enhanced Twinkling Star Animation */
   @keyframes twinkle {
-    0%, 100% { opacity: 0.2; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
+    0%, 100% { opacity: 0.1; transform: scale(0.7); } /* Dimmer, smaller start/end */
+    50% { opacity: 1; transform: scale(1.1); } /* Brighter, larger peak */
   }
   .twinkle {
     animation-name: twinkle;
-    animation-timing-function: ease-in-out;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); /* Smoother ease */
     animation-iteration-count: infinite;
     animation-direction: alternate;
   }
   .star {
     position: absolute;
-    width: 2px;
+    width: 2px; /* Default size */
     height: 2px;
-    /* Default star color for light mode */
-    background-color: hsl(var(--primary)); /* Use primary color or a specific star color */
+    /* Always use the dark mode primary color for stars, regardless of theme */
+    background-color: hsl(var(--primary));
     border-radius: 50%;
-    box-shadow: 0 0 5px 1px hsl(var(--primary) / 0.5); /* Optional glow */
+    /* More pronounced glow */
+    box-shadow: 0 0 6px 1.5px hsl(var(--primary) / 0.6);
+    /* Added filter for extra shimmer */
+    filter: brightness(1.1);
   }
 
-  /* Ensure stars use the dark mode primary color when .dark class is present */
+   /* Ensure star color remains consistent even if .dark is not directly on the star */
+  /* This covers the case where .dark is on a parent (like the preloader div) */
   .dark .star {
      background-color: hsl(var(--primary)); /* Explicitly uses dark mode --primary */
-     box-shadow: 0 0 5px 1px hsl(var(--primary) / 0.5);
+     box-shadow: 0 0 6px 1.5px hsl(var(--primary) / 0.6);
   }
 
-  /* Add a slightly larger star variation */
+  /* Larger star variation */
    .star.large {
-      width: 3px;
-      height: 3px;
+      width: 3.5px; /* Slightly larger */
+      height: 3.5px;
+      box-shadow: 0 0 8px 2px hsl(var(--primary) / 0.7); /* Enhanced glow for large */
+      filter: brightness(1.2); /* Slightly brighter */
    }
 }
