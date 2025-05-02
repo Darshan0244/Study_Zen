@@ -130,6 +130,67 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 103 31% 53%; /* Lighter primary green for sidebar rings */
   }
+  /* New Sepia Theme */
+  .sepia {
+    --background: 39 50% 96%; /* Light brownish-cream */
+    --foreground: 30 30% 25%; /* Dark brown */
+    --card: 39 50% 96%;
+    --card-foreground: 30 30% 25%;
+    --popover: 39 50% 96%;
+    --popover-foreground: 30 30% 25%;
+    --primary: 30 40% 45%; /* Muted brown */
+    --primary-foreground: 39 50% 96%; /* Light cream */
+    --secondary: 45 30% 75%; /* Lighter muted brown */
+    --secondary-foreground: 30 30% 25%; /* Dark brown */
+    --muted: 39 30% 90%; /* Very light cream */
+    --muted-foreground: 30 20% 50%; /* Grayish brown */
+    --accent: 25 60% 55%; /* Richer brown/orange */
+    --accent-foreground: 39 50% 96%; /* Light cream */
+    --destructive: 0 60% 50%; /* Muted red */
+    --destructive-foreground: 39 50% 96%; /* Light cream */
+    --border: 39 20% 85%; /* Light cream border */
+    --input: 39 20% 85%; /* Light cream border */
+    --ring: 30 40% 45%; /* Primary muted brown for focus rings */
+
+    /* Base color variables for sepia mode */
+    --white: 0 0% 100%; /* White remains white */
+    --red: 0 60% 50%; /* Muted red */
+    --blue: 205 50% 55%; /* Muted blue */
+    --orange: 25 60% 55%; /* Richer brown/orange */
+    --green: 90 25% 50%; /* Muted green */
+
+    /* Additional Colors - Sepia Mode */
+    --teal: 170 30% 50%;    /* Muted teal */
+    --lavender: 250 25% 70%; /* Muted lavender */
+    --gray-blue: 210 15% 55%; /* Muted gray-blue */
+    --gold: 40 50% 60%;     /* Muted gold */
+    --coral: 10 50% 60%;   /* Muted coral */
+    --lime-green: 75 35% 55%;  /* Muted lime */
+    --sky-blue: 190 40% 70%;  /* Muted sky blue */
+    --rose: 330 30% 70%;    /* Muted rose */
+    --warm-gray: 35 10% 60%;  /* Muted warm gray */
+    --off-white: 40 30% 92%; /* Muted off-white */
+    --stone: 40 15% 65%;    /* Muted stone */
+
+    --chart-1: 90 25% 50%; /* Muted Green */
+    --chart-2: 25 60% 55%; /* Richer brown/orange */
+    --chart-3: 45 30% 75%; /* Lighter muted brown */
+    --chart-4: 0 60% 50%; /* Muted Red */
+    --chart-5: 205 50% 55%; /* Muted Blue */
+    --chart-6: 170 30% 50%; /* Muted Teal */
+    --chart-7: 250 25% 70%; /* Muted Lavender */
+    --chart-8: 10 50% 60%; /* Muted Coral */
+
+    /* Sepia Sidebar Colors */
+    --sidebar-background: 39 30% 90%; /* Very light cream */
+    --sidebar-foreground: 30 30% 25%; /* Dark brown */
+    --sidebar-primary: 30 40% 45%; /* Muted brown */
+    --sidebar-primary-foreground: 39 50% 96%; /* Light cream */
+    --sidebar-accent: 39 20% 85%; /* Light cream border */
+    --sidebar-accent-foreground: 30 30% 25%; /* Dark brown */
+    --sidebar-border: 39 15% 80%; /* Slightly darker cream border */
+    --sidebar-ring: 30 40% 45%; /* Muted brown for sidebar rings */
+  }
 }
 
 @layer base {
