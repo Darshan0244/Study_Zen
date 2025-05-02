@@ -60,13 +60,13 @@ export function Preloader() {
           {/* Add the GIF using next/image */}
           <Image
             // Replace the existing GIF URL with the new one
-            src="https://i.gifer.com/XHXn.gif"
-            alt="Book and Pencil Loading Animation" // Updated alt text
+            src="https://ugokawaii.com/wp-content/uploads/2022/06/writing-rabbit.gif"
+            alt="Writing Rabbit Loading Animation" // Updated alt text
             width={100} // Specify width
             height={100} // Specify height
             className="mb-4" // Add some margin below the GIF
             unoptimized // GIFs often work better unoptimized with next/image
-            data-ai-hint="book pencil loading animation" // Updated AI Hint for the image
+            data-ai-hint="writing rabbit loading animation" // Updated AI Hint for the image
           />
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 animate-pulse">
             StudyZen

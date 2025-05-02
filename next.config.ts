@@ -51,6 +51,12 @@ const nextConfig: NextConfig = {
         hostname: 'i.gifer.com',
         port: '',
         pathname: '/**',
+      },
+      { // Add Ugokawaii hostname
+        protocol: 'https',
+        hostname: 'ugokawaii.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
