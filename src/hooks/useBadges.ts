@@ -27,7 +27,7 @@ export function useBadges() {
   const [badgeProgress, setBadgeProgress] = useState<BadgeProgress | null>(null); // Initialize as null
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Add loading state
-  const { toast } = useToast();
+  const { toast } = useToast(); // Keep toast hook if used elsewhere, but remove the badge notification call
 
   // Load state from local storage on mount
   useEffect(() => {
@@ -118,23 +118,21 @@ export function useBadges() {
       if (!earnedBadges.has(badge.id) && badge.criteria(criteriaData)) {
         updatedEarnedBadges.add(badge.id);
         newlyEarned = true;
-        // Show a toast notification for newly earned badge using accent color
-        toast({
-          title: "Badge Earned!",
-          description: `You've earned the "${badge.name}" badge! Check the Badges tab.`,
-           // Use orange background and white text for better visibility in dark mode
-           className: "bg-orange text-white border-orange", // Use theme orange, white text, and orange border
-           duration: 6000, // Show longer
-           // Optional: Add an icon using the action prop if desired
-           // action: <Award className="h-5 w-5 text-white" />, // Ensure icon color is also contrasting
-        });
+
+        // REMOVED: Toast notification for newly earned badge
+        // toast({
+        //   title: "Badge Earned!",
+        //   description: `You've earned the "${badge.name}" badge! Check the Badges tab.`,
+        //   className: "bg-orange text-white border-orange",
+        //   duration: 6000,
+        // });
       }
     });
 
     if (newlyEarned) {
       setEarnedBadges(updatedEarnedBadges);
     }
-  }, [badgeProgress, earnedBadges, toast, isClient, isLoading]);
+  }, [badgeProgress, earnedBadges, isClient, isLoading]); // Removed toast from dependencies
 
   // Call checkAndAwardBadges whenever progress changes
   useEffect(() => {
