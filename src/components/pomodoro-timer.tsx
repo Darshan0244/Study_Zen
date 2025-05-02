@@ -31,7 +31,7 @@ export function PomodoroTimer() {
 
   const { toast } = useToast();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Removed audioRef
   const [isClient, setIsClient] = useState(false); // State to track client-side mount
   // Get badgeProgress state, loading status, and increment function
   const { incrementPomodoroSessions, badgeProgress, isLoading: badgesLoading } = useBadges();
@@ -74,18 +74,11 @@ export function PomodoroTimer() {
    }, [badgeProgress, badgesLoading]); // Depend on badgeProgress and its loading state
 
 
-   // Preload audio and request permission only when timer actually starts or switches
-   const ensureAudioAndPermissions = useCallback(() => {
+   // Request notification permission only when timer actually starts or switches
+   const ensureNotificationPermissions = useCallback(() => {
       if (!isClient) return;
 
-       if (!audioRef.current && typeof window !== "undefined") {
-           // Ensure you have this sound file in public/sounds
-           audioRef.current = new Audio('/sounds/timer-end.mp3');
-           if (audioRef.current) {
-               audioRef.current.load();
-           }
-       }
-
+      // Keep notification permission request
        if ('Notification' in window && Notification.permission === 'default') {
            Notification.requestPermission();
        }
@@ -117,7 +110,7 @@ export function PomodoroTimer() {
     let notificationTitle = "";
     let notificationDescription = "";
 
-    ensureAudioAndPermissions(); // Ensure audio/perms are ready
+    ensureNotificationPermissions(); // Ensure perms are ready
 
     const currentSessionsCompleted = badgeProgress ? badgeProgress.pomodoroSessionsCompleted : 0; // Safely get current count
 
@@ -146,27 +139,13 @@ export function PomodoroTimer() {
 
     setMode(nextMode);
     setTimeLeft(nextTime);
-    toast({ title: notificationTitle, description: notificationDescription });
+    // Show toast notification using useEffect below to avoid direct call during render phase
+    // This state will trigger the useEffect hook below
+    setTimerFinished(true); // Re-using this flag to trigger toast and notification
 
-    // Play sound notification only on client
-     if (isClient && audioRef.current) {
-       audioRef.current.play().catch(error => console.error("Audio play failed:", error));
-     }
+  }, [mode, workMinutes, shortBreakMinutes, longBreakMinutes, isClient, ensureNotificationPermissions, incrementPomodoroSessions, badgeProgress]); // Depend on badgeProgress object
 
-    // Request notification permission and show notification if granted (only on client)
-    if (isClient && 'Notification' in window) {
-       Notification.requestPermission().then(permission => {
-         if (permission === 'granted') {
-           // Ensure you have this icon in public/icons
-           new Notification(notificationTitle, { body: notificationDescription, icon: '/icons/zen-icon.png' });
-         }
-       });
-     }
-
-  }, [mode, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient, ensureAudioAndPermissions, incrementPomodoroSessions, badgeProgress]); // Depend on badgeProgress object
-
-
-   // Effect 3: Timer logic - Handles countdown and signals completion
+   // Effect 3: Timer logic - Handles countdown
    useEffect(() => {
        if (!isClient || !isActive || timeLeft === null) { // Ensure client, active, and timeLeft is not null
            if (intervalRef.current) clearInterval(intervalRef.current);
@@ -184,7 +163,7 @@ export function PomodoroTimer() {
                    return prevTime - 1;
                });
            }, 1000);
-       } else { // timeLeft is 0 or less (should theoretically only be 0 due to above logic)
+       } else { // timeLeft is 0 or less
            if (intervalRef.current) clearInterval(intervalRef.current);
             // Ensure timerFinished is true if starting from 0 or less while active
            if (isActive) {
@@ -198,22 +177,55 @@ export function PomodoroTimer() {
                clearInterval(intervalRef.current);
            }
        };
-   // No longer depends on switchMode directly
    }, [isActive, timeLeft, isClient]);
 
-   // Effect 4: Handle mode switching when timer finishes
+   // Effect 4: Handle mode switching and notifications when timer finishes
    useEffect(() => {
        if (timerFinished) {
-           switchMode(); // Call switchMode after render cycle
-           setTimerFinished(false); // Reset the flag
+            // Determine notification based on the NEW mode set by switchMode
+            let notificationTitle = "";
+            let notificationDescription = "";
+
+            switch (mode) { // Check the current mode (which is the mode we just switched TO)
+                case 'longBreak':
+                    notificationTitle = "Long Break Time!";
+                    notificationDescription = `Take a ${longBreakMinutes}-minute break. You've earned it!`;
+                    break;
+                case 'shortBreak':
+                    notificationTitle = "Short Break Time!";
+                    notificationDescription = `Take a quick ${shortBreakMinutes}-minute break.`;
+                    break;
+                case 'work':
+                    notificationTitle = "Back to Work!";
+                    notificationDescription = `Time for a ${workMinutes}-minute focus session.`;
+                    break;
+            }
+
+            // Show toast notification
+             if (notificationTitle) {
+               toast({ title: notificationTitle, description: notificationDescription });
+             }
+
+           // Request notification permission and show notification if granted (only on client)
+           if (isClient && 'Notification' in window && notificationTitle) {
+             Notification.requestPermission().then(permission => {
+               if (permission === 'granted') {
+                 // Ensure you have this icon in public/icons or remove if not needed
+                 new Notification(notificationTitle, { body: notificationDescription, icon: '/icons/zen-icon.png' });
+               }
+             });
+           }
+
+           // Reset the flag AFTER handling notifications/toast
+           setTimerFinished(false);
        }
-   }, [timerFinished, switchMode]); // Depends on timerFinished and switchMode
+   }, [timerFinished, mode, workMinutes, shortBreakMinutes, longBreakMinutes, toast, isClient]); // Depend on timerFinished and the current mode/durations
 
 
   const toggleTimer = () => {
       if (!isClient) return; // Guard against server-side interaction
 
-       ensureAudioAndPermissions(); // Make sure audio/perms are ready
+       ensureNotificationPermissions(); // Make sure perms are ready
 
       // Prevent starting if timeLeft is null or 0
        if (!isActive && (timeLeft === null || timeLeft <= 0)) {
