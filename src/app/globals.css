@@ -225,4 +225,13 @@ body {
       box-shadow: 0 0 8px 2px hsl(var(--primary) / 0.7); /* Enhanced glow for large */
       filter: brightness(1.2); /* Slightly brighter */
    }
+
+   /* Simple Blink Animation */
+   @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+   }
+   .animate-blink {
+      animation: blink 1.5s infinite step-end; /* step-end for a sharper blink */
+   }
 }
