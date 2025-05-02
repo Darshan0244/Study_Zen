@@ -1,14 +1,17 @@
+// src/components/ai-planner.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { BrainCircuit, Loader2, Sparkles, ListChecks } from 'lucide-react';
+import { BrainCircuit, Loader2, Sparkles, ListChecks, CalendarDays, Lightbulb } from 'lucide-react';
 import { generateStudyPlan } from '@/ai/flows/generate-study-plan'; // Import the GenAI function
 import type { GenerateStudyPlanInput, GenerateStudyPlanOutput } from '@/ai/flows/generate-study-plan';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Separator } from '@/components/ui/separator';
+import ReactMarkdown from 'react-markdown'; // Import react-markdown
+
 
 // Define the Task interface again or import if defined elsewhere globally
 type Priority = 'High' | 'Medium' | 'Low';
@@ -23,7 +26,8 @@ interface Task {
 
 export function AiPlanner() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [studyPlan, setStudyPlan] = useState<string | null>(null);
+  // Use the structured output type
+  const [studyPlan, setStudyPlan] = useState<GenerateStudyPlanOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false); // Track client mount
@@ -79,15 +83,9 @@ export function AiPlanner() {
     };
 
     try {
+      // Result now matches GenerateStudyPlanOutput type
       const result: GenerateStudyPlanOutput = await generateStudyPlan(input);
-      // Basic formatting for readability
-      const formattedPlan = result.studyPlan
-        .split('\n') // Split into lines
-        .map(line => line.trim()) // Trim whitespace
-        .filter(line => line.length > 0) // Remove empty lines
-        .join('\n'); // Join back with newlines
-
-      setStudyPlan(formattedPlan);
+      setStudyPlan(result);
        toast({
          title: "Study Plan Generated!",
          description: "AI has created a personalized study plan for you below.",
@@ -108,7 +106,8 @@ export function AiPlanner() {
          variant: "destructive",
          duration: 9000, // Show error longer
       });
-      setStudyPlan(`Error: ${errorMessage}`); // Display error in the text area
+      // Display error message in a structured way
+      setStudyPlan({ schedule: `**Error:** ${errorMessage}`, suggestions: [] });
     } finally {
       setIsLoading(false);
     }
@@ -120,14 +119,14 @@ export function AiPlanner() {
         <CardTitle className="text-2xl font-bold text-primary flex items-center gap-2">
            <BrainCircuit className="h-6 w-6" /> AI Study Planner
         </CardTitle>
-        <CardDescription>Let AI craft a personalized study schedule based on your active tasks, deadlines, and priorities.</CardDescription>
+        <CardDescription>Let AI craft a personalized study schedule and offer helpful suggestions based on your active tasks.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 pt-4"> {/* Increased spacing */}
          <Alert variant="default" className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800">
            <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
            <AlertTitle className="text-blue-800 dark:text-blue-300">How it works</AlertTitle>
            <AlertDescription className="text-blue-700 dark:text-blue-400">
-             This AI planner analyzes your current <strong>active (incomplete)</strong> tasks from the 'Tasks' tab. It considers deadlines and priorities to suggest an optimized study schedule. Keep your task list accurate for the best results!
+             This AI planner analyzes your current <strong>active (incomplete)</strong> tasks from the 'Tasks' tab. It considers deadlines and priorities to suggest an optimized study schedule and provides general study tips. Keep your task list accurate for the best results!
            </AlertDescription>
          </Alert>
 
@@ -171,18 +170,45 @@ export function AiPlanner() {
 
 
         {studyPlan && (
-          <div className="mt-6 space-y-3"> {/* Increased margin */}
-            <h3 className="text-xl font-semibold text-center">📅 Your AI-Generated Study Plan:</h3>
-             <Card className="bg-muted/20 dark:bg-muted/30">
-                 <CardContent className="p-4">
-                     <Textarea
-                        value={studyPlan}
-                        readOnly
-                        className="min-h-[250px] sm:min-h-[300px] bg-transparent p-3 rounded-md border-0 focus-visible:ring-0 focus-visible:ring-offset-0 whitespace-pre-wrap font-mono text-sm" // Monospaced font for plan
-                        aria-label="Generated Study Plan"
-                     />
-                 </CardContent>
-             </Card>
+          <div className="mt-6 space-y-6"> {/* Increased margin and spacing for plan */}
+             <Separator />
+
+             {/* Schedule Section */}
+             <div>
+                <h3 className="text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2">
+                     <CalendarDays className="h-5 w-5 text-primary" /> Your Study Schedule
+                </h3>
+                 <Card className="bg-muted/20 dark:bg-muted/30">
+                     <CardContent className="p-4">
+                         {/* Use ReactMarkdown to render the schedule */}
+                         <ReactMarkdown
+                             className="prose prose-sm sm:prose-base dark:prose-invert max-w-none [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_ul]:list-disc [&_ul]:ml-5 [&_li]:mb-1"
+                            // Add components if needed for custom rendering of markdown elements
+                            // components={{ ... }}
+                         >
+                            {studyPlan.schedule}
+                         </ReactMarkdown>
+                     </CardContent>
+                 </Card>
+             </div>
+
+             {/* Suggestions Section */}
+            {studyPlan.suggestions && studyPlan.suggestions.length > 0 && !studyPlan.schedule.startsWith('**Error:**') && ( // Only show if suggestions exist and no error
+              <div>
+                 <h3 className="text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2">
+                   <Lightbulb className="h-5 w-5 text-accent" /> AI Suggestions
+                 </h3>
+                  <Card className="bg-accent/10 dark:bg-accent/20 border-accent/30">
+                    <CardContent className="p-4">
+                        <ul className="list-disc space-y-2 pl-5 text-sm sm:text-base">
+                        {studyPlan.suggestions.map((suggestion, index) => (
+                            <li key={index}>{suggestion}</li>
+                        ))}
+                        </ul>
+                    </CardContent>
+                  </Card>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

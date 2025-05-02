@@ -94,8 +94,64 @@ export default {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  		},
+        // Add typography styles for markdown
+        typography: ({ theme }: { theme: (key: string) => any }) => ({ // Need to type theme function
+          DEFAULT: {
+            css: {
+              '--tw-prose-body': theme('colors.foreground / 0.9'),
+              '--tw-prose-headings': theme('colors.foreground'),
+              '--tw-prose-lead': theme('colors.muted.foreground'),
+              '--tw-prose-links': theme('colors.primary'),
+              '--tw-prose-bold': theme('colors.foreground'),
+              '--tw-prose-counters': theme('colors.muted.foreground'),
+              '--tw-prose-bullets': theme('colors.muted.foreground'),
+              '--tw-prose-hr': theme('colors.border'),
+              '--tw-prose-quotes': theme('colors.foreground'),
+              '--tw-prose-quote-borders': theme('colors.border'),
+              '--tw-prose-captions': theme('colors.muted.foreground'),
+              '--tw-prose-code': theme('colors.foreground'),
+              '--tw-prose-pre-code': theme('colors.foreground'), // Adjusted for dark mode
+              '--tw-prose-pre-bg': theme('colors.muted / 0.5'), // Adjusted for dark mode
+              '--tw-prose-th-borders': theme('colors.border'),
+              '--tw-prose-td-borders': theme('colors.border'),
+              '--tw-prose-invert-body': theme('colors.foreground'), // Inverted
+              '--tw-prose-invert-headings': theme('colors.foreground'), // Inverted
+              '--tw-prose-invert-lead': theme('colors.muted.foreground'), // Inverted
+              '--tw-prose-invert-links': theme('colors.primary'), // Inverted
+              '--tw-prose-invert-bold': theme('colors.foreground'), // Inverted
+              '--tw-prose-invert-counters': theme('colors.muted.foreground'), // Inverted
+              '--tw-prose-invert-bullets': theme('colors.muted.foreground'), // Inverted
+              '--tw-prose-invert-hr': theme('colors.border'), // Inverted
+              '--tw-prose-invert-quotes': theme('colors.foreground'), // Inverted
+              '--tw-prose-invert-quote-borders': theme('colors.border'), // Inverted
+              '--tw-prose-invert-captions': theme('colors.muted.foreground'), // Inverted
+              '--tw-prose-invert-code': theme('colors.foreground'), // Inverted
+              '--tw-prose-invert-pre-code': theme('colors.foreground'), // Inverted
+              '--tw-prose-invert-pre-bg': theme('colors.muted / 0.7'), // Adjusted dark pre background
+              '--tw-prose-invert-th-borders': theme('colors.border'), // Inverted
+              '--tw-prose-invert-td-borders': theme('colors.border'), // Inverted
+               h3: { // Specific styling for h3 in markdown
+                fontSize: theme('fontSize.lg'), // Slightly smaller than default prose h3
+                marginTop: theme('spacing.4'),
+                marginBottom: theme('spacing.2'),
+              },
+              ul: {
+                 marginTop: theme('spacing.2'),
+                 marginBottom: theme('spacing.2'),
+              },
+               li: {
+                 marginTop: theme('spacing.1'),
+                 marginBottom: theme('spacing.1'),
+              },
+              p: { // Control paragraph margins if needed
+                 marginTop: theme('spacing.2'),
+                 marginBottom: theme('spacing.2'),
+              }
+            },
+          },
+        }),
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")], // Add typography plugin
 } satisfies Config;
