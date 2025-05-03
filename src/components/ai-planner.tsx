@@ -1,3 +1,4 @@
+// src/components/ai-planner.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -96,14 +97,27 @@ export function AiPlanner() {
          duration: 5000, // Show toast longer
        });
        incrementAiPlanGeneratedCount(); // Increment badge counter on success
-    } catch (error) {
-      console.error('Error generating study plan:', error);
+    } catch (error: any) { // Catch error as 'any' to access potential properties like 'digest'
+      console.error('Error generating study plan:', error); // Log the full error object
+
+      // Extract a more informative message if possible
       let errorMessage = "Could not generate study plan. Please try again later.";
-      if (error instanceof Error && error.message.includes('API key')) {
-           errorMessage = "Could not generate study plan. Please ensure your Google AI API key is configured correctly in the environment variables.";
-      } else if (error instanceof Error) {
-            errorMessage = `Could not generate study plan: ${error.message}. Please check your connection or try again.`;
-       }
+      if (error instanceof Error) {
+           // Check for specific error messages or properties
+          if (error.message.includes('API key')) {
+              errorMessage = "Could not generate study plan. Please ensure your Google AI API key is configured correctly in the environment variables.";
+          } else if (error.message.includes('Server Components render')) {
+               // Include digest if available, common in Next.js server errors
+              const digest = error.digest ? ` (Digest: ${error.digest})` : '';
+              errorMessage = `Could not generate study plan: An internal server error occurred${digest}. Please check server logs or contact support if the issue persists.`;
+           } else {
+               errorMessage = `Could not generate study plan: ${error.message}. Please check your connection or try again.`;
+           }
+      } else {
+          // Handle non-Error objects if necessary
+          errorMessage = `An unexpected error occurred: ${String(error)}. Please try again.`;
+      }
+
 
       toast({
          title: "Error Generating Plan",
