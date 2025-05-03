@@ -2,14 +2,14 @@
 
 StudyZen is a Next.js application designed to help students plan their tasks, manage their study sessions using a Pomodoro timer, track their progress with badges and insights, and generate personalized study plans with the help of AI.
 
+
 ![Screenshot 1](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20095114.png)
 ![Screenshot 2](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20095442.png)
 ![Screenshot 3](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20095501.png)
 ![Screenshot 4](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20095632.png)
-![Screenshot 5](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20095705.png)
 ![Screenshot 6](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20101215.png)
 ![Screenshot 7](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20101229.png)
-
+![Screenshot 5](https://github.com/Darshan0244/Study_Zen/blob/57aa73f2f5215eed872dca33e1cec3ae02e7e341/Assets/Screenshot%202025-05-03%20095705.png)
 
 ## Features
 
