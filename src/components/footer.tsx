@@ -12,7 +12,7 @@ export function Footer() {
         </p>
         <div className="flex items-center space-x-4">
           <a
-            href="https://github.com/your-github-username/studyzen" // Replace with your actual repo link
+            href="https://github.com/Darshan0244/Study_Zen" // Replace with your actual repo link
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub Repository"
