@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { BrainCircuit, Loader2, Sparkles, ListChecks, CalendarDays, Lightbulb } from 'lucide-react';
+import { BrainCircuit, Loader2, Sparkles, ListChecks, CalendarDays, Lightbulb, AlertCircle } from 'lucide-react'; // Added AlertCircle
 import { generateStudyPlan } from '@/ai/flows/generate-study-plan'; // Import the GenAI function
 import type { GenerateStudyPlanInput, GenerateStudyPlanOutput } from '@/ai/flows/generate-study-plan';
 import { useToast } from "@/hooks/use-toast";
@@ -102,31 +102,46 @@ export function AiPlanner() {
 
       // Extract a more informative message if possible
       let errorMessage = "Could not generate study plan. Please try again later.";
+      let errorTitle = "Error Generating Plan";
+      let userGuidance = "";
+
       if (error instanceof Error) {
            // Check for specific error messages or properties
-          if (error.message.includes('API key')) {
-              errorMessage = "Could not generate study plan. Please ensure your Google AI API key is configured correctly in the environment variables.";
-          } else if (error.message.includes('Server Components render')) {
-               // Include digest if available, common in Next.js server errors
+          if (error.message.includes('API key') || error.message.includes('authentication')) {
+              errorTitle = "Configuration Error";
+              errorMessage = "Could not connect to the AI service. This might be due to a missing or invalid API key.";
+              userGuidance = "Please ensure the Google AI API key is correctly configured in the deployment environment variables (e.g., on Vercel).";
+          } else if (error.message.includes('Server Components render') || error.digest) {
+               // Generic server error, often seen on Vercel
+              errorTitle = "Server Error";
               const digest = error.digest ? ` (Digest: ${error.digest})` : '';
-              errorMessage = `Could not generate study plan: An internal server error occurred${digest}. Please check server logs or contact support if the issue persists.`;
+              errorMessage = `An internal server error occurred${digest}.`;
+              userGuidance = "This often happens if server configuration (like API keys) is missing or incorrect in the deployment environment. Please check server logs or contact support if the issue persists.";
            } else {
-               errorMessage = `Could not generate study plan: ${error.message}. Please check your connection or try again.`;
+                errorTitle = "Generation Failed";
+               errorMessage = `Could not generate study plan: ${error.message}.`;
+                userGuidance = "Please check your connection or try again.";
            }
       } else {
           // Handle non-Error objects if necessary
-          errorMessage = `An unexpected error occurred: ${String(error)}. Please try again.`;
+          errorTitle = "Unexpected Error";
+          errorMessage = `An unexpected error occurred: ${String(error)}.`;
+           userGuidance = "Please try again.";
       }
+
+      // Combine messages for toast and UI display
+      const fullErrorMessageForToast = `${errorMessage} ${userGuidance}`;
+      const fullErrorMessageForUI = `**${errorTitle}:** ${errorMessage}\n\n*Suggestion:* ${userGuidance}`;
 
 
       toast({
-         title: "Error Generating Plan",
-         description: errorMessage,
+         title: errorTitle,
+         description: fullErrorMessageForToast,
          variant: "destructive",
-         duration: 9000, // Show error longer
+         duration: 12000, // Show error longer to allow reading guidance
       });
-      // Display error message in a structured way
-      setStudyPlan({ schedule: `**Error:** ${errorMessage}`, suggestions: [] });
+      // Display structured error message in the UI using Markdown
+      setStudyPlan({ schedule: fullErrorMessageForUI, suggestions: [] });
     } finally {
       setIsLoading(false);
     }
@@ -229,15 +244,27 @@ export function AiPlanner() {
              {/* Schedule Section */}
              <div>
                  <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
-                     <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Your Study Schedule {/* Responsive icon */}
+                     {/* Show error icon if schedule indicates an error */}
+                      {studyPlan.schedule.startsWith('**Error:**') || studyPlan.schedule.startsWith('**Server Error:**') || studyPlan.schedule.startsWith('**Configuration Error:**') ? (
+                         <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
+                     ) : (
+                          <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                     )}
+                      Your Study Schedule {/* Responsive icon */}
                  </h3>
-                  <Card className="bg-muted/20 dark:bg-muted/30 border border-muted/50 transition-shadow duration-200 hover:shadow-md"> {/* Added border and hover shadow */}
+                   {/* Conditional styling for error card */}
+                  <Card className={
+                      studyPlan.schedule.startsWith('**Error:**') || studyPlan.schedule.startsWith('**Server Error:**') || studyPlan.schedule.startsWith('**Configuration Error:**')
+                          ? "bg-destructive/10 dark:bg-destructive/20 border border-destructive/40"
+                          : "bg-muted/20 dark:bg-muted/30 border border-muted/50 transition-shadow duration-200 hover:shadow-md"
+                    }
+                   >
                      <CardContent className="p-4">
-                         {/* Use ReactMarkdown to render the schedule */}
+                         {/* Use ReactMarkdown to render the schedule or error */}
                          <ReactMarkdown
                               className="prose prose-sm sm:prose-base dark:prose-invert max-w-none [&_h3]:font-semibold [&_h3]:text-lg [&_h3]:mt-4 [&_h3]:mb-2 [&_ul]:list-disc [&_ul]:ml-5 [&_li]:mb-1" // Adjusted heading size
-                            // Add components if needed for custom rendering of markdown elements
-                            // components={{ ... }}
+                              // Add components if needed for custom rendering of markdown elements
+                              // components={{ ... }}
                          >
                             {studyPlan.schedule}
                          </ReactMarkdown>
@@ -246,7 +273,7 @@ export function AiPlanner() {
              </div>
 
              {/* Suggestions Section */}
-            {studyPlan.suggestions && studyPlan.suggestions.length > 0 && !studyPlan.schedule.startsWith('**Error:**') && ( // Only show if suggestions exist and no error
+            {studyPlan.suggestions && studyPlan.suggestions.length > 0 && !(studyPlan.schedule.startsWith('**Error:**') || studyPlan.schedule.startsWith('**Server Error:**') || studyPlan.schedule.startsWith('**Configuration Error:**')) && ( // Only show if suggestions exist and no error
               <div>
                   <h3 className="text-lg sm:text-xl font-semibold text-center mb-4 flex items-center justify-center gap-2"> {/* Responsive text size */}
                    <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-accent" /> AI Suggestions {/* Responsive icon */}
@@ -274,3 +301,5 @@ export function AiPlanner() {
     </Card>
   );
 }
+
+    
